@@ -14,8 +14,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Silksteppe | Монголын гайхамшигт байгалийг бидэнтэй хамт мэдэр",
-  description: "Жинхэнэ нүүдэлчин ахуй, мартагдашгүй адал явдал. Таны найдвартай хөтөч, аяллын зохион байгуулагч Базарваань А.",
+  title: "Silksteppe | Discover the Soul of Mongolia",
+  description: "Authentic nomadic experiences, timeless journeys, and unforgettable adventures. Your trusted guide across the Mongolian plateau.",
 };
 
 export default function RootLayout({
