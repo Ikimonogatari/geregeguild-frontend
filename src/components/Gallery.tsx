@@ -24,6 +24,11 @@ const images = [
 export default function Gallery() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!api) return;
@@ -52,50 +57,52 @@ export default function Gallery() {
           </p>
         </div>
 
-        <div className="relative">
-          <Carousel
-            setApi={setApi}
-            plugins={[
-              Autoplay({
-                delay: 4000,
-                stopOnInteraction: false,
-              }),
-            ]}
-            opts={{
-              align: "center",
-              loop: true,
-              skipSnaps: false,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="ml-0">
-              {images.map((src, idx) => {
-                const isActive = current === idx;
-                return (
-                  <CarouselItem key={idx} className="pl-0 basis-full sm:basis-1/2 lg:basis-1/3">
-                    <div className="px-2 h-full">
-                      <div
-                        className={cn(
-                          "relative aspect-3/4 overflow-hidden border border-black/5 shadow-md",
-                          isActive ? "z-10" : "z-0"
-                        )}
-                      >
-                        <img 
-                          src={src} 
-                          alt={`Gallery view ${idx + 1}`} 
-                          className="w-full h-full object-cover"
-                        />
+        <div className="relative min-h-[400px]">
+          {mounted && (
+            <Carousel
+              setApi={setApi}
+              plugins={[
+                Autoplay({
+                  delay: 4000,
+                  stopOnInteraction: false,
+                }),
+              ]}
+              opts={{
+                align: "center",
+                loop: true,
+                skipSnaps: false,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="ml-0">
+                {images.map((src, idx) => {
+                  const isActive = current === idx;
+                  return (
+                    <CarouselItem key={idx} className="pl-0 basis-full sm:basis-1/2 lg:basis-1/3">
+                      <div className="px-2 h-full">
+                        <div
+                          className={cn(
+                            "relative aspect-3/4 overflow-hidden border border-black/5 shadow-md",
+                            isActive ? "z-10" : "z-0"
+                          )}
+                        >
+                          <img 
+                            src={src} 
+                            alt={`Gallery view ${idx + 1}`} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-            <div className="flex justify-center md:justify-end gap-4 mt-12">
-              <CarouselPrevious className="relative inset-0 translate-x-0 translate-y-0 rounded-none h-14 w-14 md:h-16 md:w-16 border-2 border-brand-charcoal bg-transparent text-brand-charcoal hover:bg-brand-gold hover:border-brand-gold transition-all duration-300" />
-              <CarouselNext className="relative inset-0 translate-x-0 translate-y-0 rounded-none h-14 w-14 md:h-16 md:w-16 border-2 border-brand-charcoal bg-transparent text-brand-charcoal hover:bg-brand-gold hover:border-brand-gold transition-all duration-300" />
-            </div>
-          </Carousel>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <div className="flex justify-center md:justify-end gap-4 mt-12">
+                <CarouselPrevious className="relative inset-0 translate-x-0 translate-y-0 rounded-none h-14 w-14 md:h-16 md:w-16 border-2 border-brand-charcoal bg-transparent text-brand-charcoal hover:bg-brand-gold hover:border-brand-gold transition-all duration-300" />
+                <CarouselNext className="relative inset-0 translate-x-0 translate-y-0 rounded-none h-14 w-14 md:h-16 md:w-16 border-2 border-brand-charcoal bg-transparent text-brand-charcoal hover:bg-brand-gold hover:border-brand-gold transition-all duration-300" />
+              </div>
+            </Carousel>
+          )}
         </div>
       </div>
     </section>

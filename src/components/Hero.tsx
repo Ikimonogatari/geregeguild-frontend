@@ -1,38 +1,22 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef } from 'react';
+import { motion } from "framer-motion";
 
 export default function Hero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.currentTime = 5;
-    const handleTimeUpdate = () => {
-      if (video.currentTime < 5) video.currentTime = 5;
-    };
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    return () => video.removeEventListener('timeupdate', handleTimeUpdate);
-  }, []);
-
   return (
     <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-brand-charcoal">
       <div className="absolute inset-0 z-0">
         <video
-          ref={videoRef}
+          key="hero-video"
           autoPlay
           loop
           muted
           playsInline
           className="object-cover w-full h-full opacity-50"
         >
-          <source src="/MONGOLIA.mkv#t=5" type="video/x-matroska" />
-          <source src="/ride.mp4#t=5" type="video/mp4" />
+          <source src="/MONGOLIA.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-brand-charcoal/30"></div>
       </div>
@@ -65,7 +49,7 @@ export default function Hero() {
             href="#about"
             className={cn(
               buttonVariants({ variant: "outline" }),
-              "rounded-none px-10 py-6 sm:px-12 sm:py-7 text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase border-white/30 text-white hover:bg-brand-gold hover:text-brand-charcoal hover:border-brand-gold transition-all duration-500"
+              "rounded-none px-10 py-6 sm:px-12 sm:py-7 text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase border-white/30 text-white hover:bg-brand-gold hover:text-brand-charcoal hover:border-brand-gold transition-all duration-500",
             )}
           >
             Start Journey
@@ -79,7 +63,9 @@ export default function Hero() {
         transition={{ delay: 2, duration: 1 }}
         className="absolute bottom-12 left-6 sm:left-12 flex items-center gap-4 origin-left -rotate-90 hidden sm:flex"
       >
-        <span className="text-brand-gold text-[9px] tracking-[0.5em] uppercase font-bold">Discover</span>
+        <span className="text-brand-gold text-[9px] tracking-[0.5em] uppercase font-bold">
+          Discover
+        </span>
         <div className="w-12 h-px bg-brand-gold/30"></div>
       </motion.div>
     </section>
