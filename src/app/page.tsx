@@ -4,6 +4,7 @@ import About from "@/components/About";
 import Experience from "@/components/Experience";
 import Reviews from "@/components/Reviews";
 import Gallery from "@/components/Gallery";
+import Pricing from "@/components/Pricing";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 
@@ -16,6 +17,7 @@ export default function Home() {
       <Experience />
       <Reviews />
       <Gallery />
+      <Pricing />
       <Footer />
       <ScrollToTop />
     </main>

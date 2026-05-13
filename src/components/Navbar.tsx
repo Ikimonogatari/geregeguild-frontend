@@ -22,6 +22,7 @@ export default function Navbar() {
     { name: 'Home', href: '#' },
     { name: 'Story', href: '#about' },
     { name: 'Ride', href: '#experience' },
+    { name: 'Pricing', href: '#pricing' },
     { name: 'Reviews', href: '#reviews' },
   ];
 
@@ -29,7 +30,7 @@ export default function Navbar() {
     <nav 
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        isScrolled ? "bg-brand-charcoal/95 backdrop-blur-md h-20 shadow-xl" : "bg-transparent h-28"
+        isScrolled ? "bg-brand-charcoal/95 backdrop-blur-md h-24 shadow-xl" : "bg-transparent h-36"
       )}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 h-full">
@@ -41,7 +42,7 @@ export default function Navbar() {
                 alt="Gerege Guild Logo" 
                 className={cn(
                   "transition-all duration-500 w-auto object-contain",
-                  isScrolled ? "h-16 md:h-20" : "h-20 md:h-24"
+                  isScrolled ? "h-20 md:h-24" : "h-28 md:h-32"
                 )} 
               />
             </a>
