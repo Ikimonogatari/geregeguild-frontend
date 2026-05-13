@@ -28,7 +28,7 @@ export default function Hero() {
           transition={{ duration: 1.2 }}
           className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-heading font-bold text-white mb-6 tracking-tighter leading-[0.9]"
         >
-          SILK <span className="text-brand-gold">STEPPE</span>
+          GEREGE <span className="text-brand-gold">GUILD</span>
         </motion.h1>
 
         <motion.p
@@ -61,7 +61,7 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-12 left-6 sm:left-12 flex items-center gap-4 origin-left -rotate-90 hidden sm:flex"
+        className="absolute bottom-12 left-6 sm:left-12 items-center gap-4 origin-left -rotate-90 hidden sm:flex"
       >
         <span className="text-brand-gold text-[9px] tracking-[0.5em] uppercase font-bold">
           Discover

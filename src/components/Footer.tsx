@@ -69,7 +69,7 @@ export default function Footer() {
             <div className="space-y-8">
               <div>
                 <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-brand-gold mb-2">Email</p>
-                <p className="text-lg font-bold text-white">adventure@silksteppe.mn</p>
+                <p className="text-lg font-bold text-white">adventure@geregeguild.mn</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-brand-gold mb-2">Base</p>
@@ -80,7 +80,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-20 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-12 text-[10px] font-bold tracking-[0.4em] uppercase text-white/60">
-          <p>&copy; {new Date().getFullYear()} Silksteppe Journeys. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Gerege Guild. All rights reserved.</p>
           <div className="flex gap-12">
             <a href="#" className="hover:text-brand-gold transition-colors text-white/60">Privacy</a>
             <a href="#" className="hover:text-brand-gold transition-colors text-white/60">Terms</a>

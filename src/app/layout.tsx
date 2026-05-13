@@ -14,7 +14,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Silksteppe | Discover the Soul of Mongolia",
+  title: "Gerege Guild | Discover the Soul of Mongolia",
   description: "Authentic nomadic experiences, timeless journeys, and unforgettable adventures. Your trusted guide across the Mongolian plateau.",
 };
 

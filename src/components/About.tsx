@@ -65,7 +65,7 @@ export default function About() {
           >
             <span className="text-brand-gold font-bold tracking-[0.4em] uppercase text-[9px] mb-4 block">Our Vision</span>
             <h2 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold mb-8 tracking-tighter leading-[0.9] text-brand-charcoal">
-              Beyond the <span className="text-brand-gold">Steppe</span>
+              Beyond the <span className="text-brand-gold">Guild</span>
             </h2>
             <p className="text-lg md:text-xl text-neutral-800 mb-12 leading-relaxed font-medium">
               We create immersive journeys through Mongolia's diverse landscapes—from vibrant city hotspots and sacred monasteries to the raw beauty of the wilderness, spanning every season.

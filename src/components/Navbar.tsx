@@ -37,8 +37,8 @@ export default function Navbar() {
           <div className="shrink-0 py-2">
             <a href="#" className="block">
               <img 
-                src="/silksteppe.png" 
-                alt="Silksteppe Logo" 
+                src="/geregeguild.png" 
+                alt="Gerege Guild Logo" 
                 className={cn(
                   "transition-all duration-500 w-auto object-contain",
                   isScrolled ? "h-16 md:h-20" : "h-20 md:h-24"
