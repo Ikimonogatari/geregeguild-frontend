@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Experience from "@/components/Experience";
+import GuildSection from "@/components/GuildSection";
 import Reviews from "@/components/Reviews";
 import Gallery from "@/components/Gallery";
 import Pricing from "@/components/Pricing";
@@ -15,6 +16,7 @@ export default function Home() {
       <Hero />
       <About />
       <Experience />
+      <GuildSection />
       <Reviews />
       <Gallery />
       <Pricing />
