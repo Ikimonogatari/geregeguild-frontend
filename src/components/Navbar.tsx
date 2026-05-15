@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,18 +11,21 @@ import { AuthModal } from './AuthModal';
 import Link from 'next/link';
 
 export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
+  const [isScrolled, setIsScrolled] = useState(!isHomePage);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user, logout } = useAuth();
 
   useEffect(() => {
+    if (!isHomePage) return;
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHomePage]);
 
   const navLinks = [
     { name: 'Home', href: '/#' },
@@ -114,78 +118,79 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="fixed inset-0 top-0 bg-brand-charcoal z-[60] flex flex-col items-center justify-center space-y-8 p-12"
-            >
-              <button 
-                className="absolute top-8 right-8 text-white p-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <X size={32} />
-              </button>
-              
-              {navLinks.map((link, idx) => (
-                <Link 
-                  key={idx}
-                  href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-white text-3xl font-bold tracking-[0.2em] uppercase hover:text-brand-gold transition-colors"
-                >
-                  {link.name}
-                </Link>
-              ))}
+      </nav>
 
-              {user ? (
-                <>
-                  <Link
-                    href="/profile"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-brand-gold text-2xl font-bold tracking-[0.2em] uppercase mt-8"
-                  >
-                    Profile ({user.username})
-                  </Link>
-                  <button
-                    onClick={() => {
-                      logout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="text-white/60 text-xl font-bold tracking-[0.1em] uppercase"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => {
-                    setIsAuthModalOpen(true);
-                    setIsMobileMenuOpen(false);
-                  }}
+      {/* Mobile Menu — outside nav to avoid nav's stacking context */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 bg-brand-charcoal z-[60] flex flex-col items-center justify-center space-y-8 p-12"
+          >
+            <button
+              className="absolute top-8 right-8 text-white p-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <X size={32} />
+            </button>
+
+            {navLinks.map((link, idx) => (
+              <Link
+                key={idx}
+                href={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-white text-3xl font-bold tracking-[0.2em] uppercase hover:text-brand-gold transition-colors"
+              >
+                {link.name}
+              </Link>
+            ))}
+
+            {user ? (
+              <>
+                <Link
+                  href="/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className="text-brand-gold text-2xl font-bold tracking-[0.2em] uppercase mt-8"
                 >
-                  Login / Join
+                  Profile ({user.username})
+                </Link>
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-white/60 text-xl font-bold tracking-[0.1em] uppercase"
+                >
+                  Logout
                 </button>
-              )}
-
-              <a 
-                href="/#contact" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={cn(
-                  buttonVariants({ variant: "default" }),
-                  "bg-brand-gold text-brand-charcoal rounded-none w-full py-8 text-sm font-bold tracking-widest uppercase mt-8"
-                )}
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setIsAuthModalOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-brand-gold text-2xl font-bold tracking-[0.2em] uppercase mt-8"
               >
-                Inquire Now
-              </a>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+                Login / Join
+              </button>
+            )}
+
+            <a
+              href="/#contact"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={cn(
+                buttonVariants({ variant: "default" }),
+                "bg-brand-gold text-brand-charcoal rounded-none w-full py-8 text-sm font-bold tracking-widest uppercase mt-8"
+              )}
+            >
+              Inquire Now
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AuthModal 
         isOpen={isAuthModalOpen} 
