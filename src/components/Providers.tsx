@@ -74,7 +74,7 @@ export function useGame() {
   return context;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000');
 
 export function Providers({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -144,7 +144,7 @@ export function Providers({ children }: { children: ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-      
+
       if (!res.ok) {
         toast.error('Invalid credentials');
         return false;
@@ -175,7 +175,7 @@ export function Providers({ children }: { children: ReactNode }) {
     try {
       const res = await fetch(`${API_URL}/api/checkin`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.access_token}`
         },
@@ -188,7 +188,7 @@ export function Providers({ children }: { children: ReactNode }) {
       }
 
       const data = await res.json();
-      
+
       setGameState(prev => ({
         points: data.newTotalPoints,
         unlockedPOIs: [...prev.unlockedPOIs, poiId],
@@ -210,12 +210,12 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
-      <GameContext.Provider value={{ 
-        gameState, 
-        rank: user?.rank || 'Novice', 
-        pois, 
-        leaderboard, 
-        feed, 
+      <GameContext.Provider value={{
+        gameState,
+        rank: user?.rank || 'Novice',
+        pois,
+        leaderboard,
+        feed,
         checkIn,
         refreshSocial
       }}>
