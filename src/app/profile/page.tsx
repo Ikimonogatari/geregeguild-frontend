@@ -86,8 +86,9 @@ export default function ProfilePage() {
                   </Link>
                 </div>
               </div>
+            </div>
 
-              <div className="bg-white/5 border border-white/10 p-8 rounded-xl">
+            <div className="bg-white/5 border border-white/10 p-8 rounded-xl">
               <h2 className="text-2xl font-bricolage text-brand-gold mb-6 flex items-center gap-3">
                 <Users size={24} /> Guild Leaderboard
               </h2>

@@ -47,13 +47,13 @@ export default function MapComponent() {
   const { user } = useAuth();
   const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
 
-  const handleCheckIn = (poi: POI) => {
+  const handleCheckIn = async (poi: POI) => {
     if (!user) {
       toast.error('Please login to check in and earn rewards!');
       return;
     }
 
-    const result = checkIn(poi.id);
+    const result = await checkIn(poi.id);
     if (result.success) {
       toast.success(
         <div className="flex flex-col gap-1">
