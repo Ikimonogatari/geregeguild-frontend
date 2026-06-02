@@ -1,75 +1,78 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { Star, Quote } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
 
-const reviews = [
+const tales = [
   {
     name: "NJ Kessler",
-    content: "An absolute masterclass in Mongolian travel. Despite fuel shortages, Vanya's herculean efforts ensured our winter expedition was a total success. His local knowledge and English fluency are exceptional.",
-    rating: 5,
-    image: "/5.jpg"
+    region: "Winter Charter — Khövsgöl",
+    content:
+      "An absolute masterclass in Mongolian travel. Despite fuel shortages on the road, our guide's herculean efforts ensured the winter expedition was a total success. Local knowledge, fluent English, quiet humour — exceptional.",
+    image: "/5.jpg",
   },
   {
     name: "Fletcher Bradford",
-    content: "Staying with nomadic families and visiting reindeer herders was life-changing. One of the most memorable things I've ever done. Vanya was more than a guide; he became a friend.",
-    rating: 5,
-    image: "/6.jpg"
-  }
+    region: "Taiga Charter — North",
+    content:
+      "Staying with nomadic families and visiting the reindeer herders was life-changing. One of the most memorable things I have ever done. Our guide was more than a guide; by the end of the road he was a friend.",
+    image: "/6.jpg",
+  },
 ];
 
 export default function Reviews() {
   return (
-    <section id="reviews" className="py-24 md:py-32 bg-brand-charcoal text-white relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-gold/5 skew-x-12 translate-x-1/2" />
-      
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-        <div className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-8">
+    <section
+      id="tales"
+      className="relative py-28 md:py-36 px-6 overflow-hidden bg-background"
+    >
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-10">
           <div className="max-w-xl">
-            <span className="text-brand-gold font-bold tracking-[0.4em] uppercase text-[9px] mb-4 block">Testimonials</span>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tighter leading-[0.9] text-white">
-              Voices of the <span className="text-brand-gold">Journey</span>
+            <p className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5">
+              Chronicles
+            </p>
+            <h2 className="font-heading text-4xl md:text-6xl uppercase tracking-[0.08em] leading-[1.05] text-foreground ember-text-glow">
+              Tales from the road
             </h2>
           </div>
-          <p className="text-white/70 text-base md:text-lg max-w-sm font-medium tracking-tight">
-            Honest stories from those who ventured into the wild with us.
+          <p className="text-muted text-[17px] max-w-sm font-serif italic leading-relaxed">
+            Honest words from patrons who have ridden with the Guild. Each chronicle was sent by raven, unedited.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/10 border border-white/10">
-          {reviews.map((review, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
+        <div className="ink-divider mb-14" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {tales.map((t, idx) => (
+            <motion.article
+              key={t.name}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: idx * 0.1 }}
+              transition={{ duration: 0.7, delay: idx * 0.12 }}
+              className="bg-surface/50 border border-highlight/30 p-8 md:p-12 ember-glow"
             >
-              <Card className="h-full border-none rounded-none bg-brand-charcoal p-8 md:p-12 lg:p-16 relative group">
-                <CardContent className="p-0">
-                  <Quote className="w-10 h-10 text-brand-gold/20 mb-8" />
-                  <div className="flex items-center mb-8">
-                    <img 
-                      src={review.image} 
-                      alt={review.name} 
-                      className="w-32 h-32 md:w-48 md:h-48 rounded-none grayscale group-hover:grayscale-0 transition-all duration-500 object-cover mr-6 border border-white/10"
-                    />
-                    <div>
-                      <h3 className="font-heading text-xl md:text-2xl font-bold tracking-tight text-white">{review.name}</h3>
-                      <div className="flex text-brand-gold mt-1 gap-0.5">
-                        {[...Array(review.rating)].map((_, i) => (
-                          <Star key={i} className="w-2.5 h-2.5 fill-current" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-lg md:text-xl text-white/90 leading-relaxed font-medium italic">
-                    "{review.content}"
+              <div className="flex items-center gap-6 mb-8">
+                <div className="vignette w-24 h-24 md:w-28 md:h-28 overflow-hidden border border-accent/40">
+                  <img
+                    src={t.image}
+                    alt={t.name}
+                    className="w-full h-full object-cover grayscale-[20%] sepia-[30%]"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-heading uppercase tracking-[0.1em] text-foreground text-[20px]">
+                    {t.name}
+                  </h3>
+                  <p className="font-accent italic text-accent text-[13px] tracking-[0.2em] uppercase mt-1">
+                    {t.region}
                   </p>
-                </CardContent>
-              </Card>
-            </motion.div>
+                </div>
+              </div>
+              <p className="text-foreground/90 font-serif italic text-[18px] leading-[1.85]">
+                &ldquo;{t.content}&rdquo;
+              </p>
+            </motion.article>
           ))}
         </div>
       </div>

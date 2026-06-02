@@ -1,137 +1,138 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { buttonVariants } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Menu, X, User as UserIcon } from 'lucide-react';
-import { useAuth } from './Providers';
-import { AuthModal } from './AuthModal';
-import Link from 'next/link';
+import { Menu, X, User as UserIcon } from "lucide-react";
+import { useAuth } from "./Providers";
+import { AuthModal } from "./AuthModal";
+import Link from "next/link";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
+  const isHomePage = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(!isHomePage);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user, logout } = useAuth();
 
   useEffect(() => {
-    if (!isHomePage) return;
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    if (!isHomePage) {
+      setIsScrolled(true);
+      return;
+    }
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [isHomePage]);
 
   const navLinks = [
-    { name: 'Home', href: '/#' },
-    { name: 'Story', href: '/#about' },
-    { name: 'Ride', href: '/#experience' },
-    { name: 'Map', href: '/map' }, // NEW: Link to map
-    { name: 'Pricing', href: '/#pricing' },
-    { name: 'Reviews', href: '/#reviews' },
+    { name: "Hall", href: "/" },
+    { name: "Lore", href: "/#lore" },
+    { name: "Guides", href: "/guides" },
+    { name: "Map", href: "/map" },
+    { name: "Tales", href: "/#tales" },
   ];
 
   return (
     <>
-      <nav 
+      <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-          isScrolled ? "bg-brand-charcoal/95 backdrop-blur-md h-24 shadow-xl" : "bg-transparent h-36"
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b",
+          isScrolled
+            ? "bg-background/95 backdrop-blur-md h-20 border-accent/20 shadow-[0_8px_30px_-12px_rgba(201,146,42,0.25)]"
+            : "bg-transparent h-28 border-transparent"
         )}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-full">
           <div className="flex items-center justify-between h-full">
             <div className="shrink-0 py-2">
               <Link href="/" className="block">
-                <img 
-                  src="/geregeguild.png" 
-                  alt="Gerege Guild Logo" 
+                <img
+                  src="/geregeguild.png"
+                  alt="Gerege Guild"
                   className={cn(
                     "transition-all duration-500 w-auto object-contain",
-                    isScrolled ? "h-20 md:h-24" : "h-28 md:h-32"
-                  )} 
+                    isScrolled ? "h-14 md:h-16" : "h-20 md:h-24"
+                  )}
                 />
               </Link>
             </div>
-            
+
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center space-x-8 lg:space-x-12">
+            <div className="hidden md:flex items-center space-x-10 lg:space-x-12">
               {navLinks.map((link, idx) => (
-                <Link 
+                <Link
                   key={idx}
                   href={link.href}
-                  className="text-white hover:text-brand-gold text-[11px] font-bold tracking-[0.2em] uppercase transition-colors relative group"
+                  className="font-accent text-foreground hover:text-accent text-[13px] tracking-[0.3em] uppercase transition-colors relative group"
                 >
                   {link.name}
-                  <span className="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute -bottom-2 left-0 w-0 h-px bg-accent transition-all duration-300 group-hover:w-full" />
                 </Link>
               ))}
 
               {user ? (
-                <div className="flex items-center space-x-6">
-                  <Link 
+                <div className="flex items-center space-x-5">
+                  <Link
                     href="/profile"
-                    className="flex items-center space-x-2 text-brand-gold hover:text-white transition-colors"
+                    className="flex items-center space-x-2 text-accent hover:text-foreground transition-colors"
                   >
-                    <UserIcon size={20} />
-                    <span className="text-[11px] font-bold tracking-[0.1em] uppercase">{user.username}</span>
+                    <UserIcon size={18} />
+                    <span className="font-accent text-[12px] tracking-[0.2em] uppercase">
+                      {user.username}
+                    </span>
                   </Link>
                   <button
                     onClick={logout}
-                    className="text-white/60 hover:text-white text-[10px] font-bold tracking-[0.1em] uppercase transition-colors"
+                    className="font-accent text-muted hover:text-foreground text-[11px] tracking-[0.2em] uppercase transition-colors"
                   >
-                    Logout
+                    Leave
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setIsAuthModalOpen(true)}
-                  className="text-brand-gold hover:text-white text-[11px] font-bold tracking-[0.2em] uppercase transition-colors"
+                  className="font-accent text-accent hover:text-foreground text-[12px] tracking-[0.3em] uppercase transition-colors"
                 >
-                  Login / Join
+                  Sign the Register
                 </button>
               )}
 
-              <a 
-                href="/#contact" 
-                className={cn(
-                  buttonVariants({ variant: "default" }),
-                  "bg-brand-gold text-brand-charcoal hover:bg-white rounded-none px-8 py-4 h-auto text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 border-none"
-                )}
+              <Link
+                href="/guides"
+                className="px-6 py-3 border border-accent bg-accent/10 hover:bg-accent hover:text-background font-accent text-[11px] tracking-[0.3em] uppercase text-foreground transition-all duration-500 ember-glow"
               >
-                Inquire
-              </a>
+                Choose Guide
+              </Link>
             </div>
 
             {/* Mobile Toggle */}
-            <button 
-              className="md:hidden text-white p-2"
+            <button
+              className="md:hidden text-foreground p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Menu"
             >
               {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
-
       </nav>
 
-      {/* Mobile Menu — outside nav to avoid nav's stacking context */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 bg-brand-charcoal z-[60] flex flex-col items-center justify-center space-y-8 p-12"
+            className="fixed inset-0 bg-background z-[60] flex flex-col items-center justify-center space-y-8 p-12"
           >
             <button
-              className="absolute top-8 right-8 text-white p-2"
+              className="absolute top-8 right-8 text-foreground p-2"
               onClick={() => setIsMobileMenuOpen(false)}
+              aria-label="Close"
             >
               <X size={32} />
             </button>
@@ -141,7 +142,7 @@ export default function Navbar() {
                 key={idx}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white text-3xl font-bold tracking-[0.2em] uppercase hover:text-brand-gold transition-colors"
+                className="font-heading text-foreground text-3xl tracking-[0.2em] uppercase hover:text-accent transition-colors"
               >
                 {link.name}
               </Link>
@@ -152,7 +153,7 @@ export default function Navbar() {
                 <Link
                   href="/profile"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-brand-gold text-2xl font-bold tracking-[0.2em] uppercase mt-8"
+                  className="font-accent text-accent text-xl tracking-[0.2em] uppercase mt-8"
                 >
                   Profile ({user.username})
                 </Link>
@@ -161,9 +162,9 @@ export default function Navbar() {
                     logout();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="text-white/60 text-xl font-bold tracking-[0.1em] uppercase"
+                  className="font-accent text-muted text-lg tracking-[0.2em] uppercase"
                 >
-                  Logout
+                  Leave
                 </button>
               </>
             ) : (
@@ -172,29 +173,26 @@ export default function Navbar() {
                   setIsAuthModalOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="text-brand-gold text-2xl font-bold tracking-[0.2em] uppercase mt-8"
+                className="font-accent text-accent text-xl tracking-[0.2em] uppercase mt-8"
               >
-                Login / Join
+                Sign the Register
               </button>
             )}
 
-            <a
-              href="/#contact"
+            <Link
+              href="/guides"
               onClick={() => setIsMobileMenuOpen(false)}
-              className={cn(
-                buttonVariants({ variant: "default" }),
-                "bg-brand-gold text-brand-charcoal rounded-none w-full py-8 text-sm font-bold tracking-widest uppercase mt-8"
-              )}
+              className="px-10 py-5 border border-accent bg-accent/10 font-accent text-foreground text-sm tracking-[0.3em] uppercase mt-8"
             >
-              Inquire Now
-            </a>
+              Choose Guide
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </>
   );

@@ -1,109 +1,113 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { Map, Scroll, Award, Users } from 'lucide-react';
-import Link from 'next/link';
+import { motion } from "framer-motion";
+import Link from "next/link";
 
-const features = [
+const tenets = [
   {
-    title: "Interactive Map",
-    desc: "Explore historic landmarks and hidden gems across the Mongolian plateau with our custom traveler's map.",
-    icon: <Map className="text-brand-gold" size={32} />
+    sigil: "I",
+    title: "The Roster",
+    desc: "Every guide is a person you can name. Read their card. Pick the one whose road sounds like yours.",
   },
   {
-    title: "Unlock Lore",
-    desc: "Check in at locations to unlock deep historical context and legendary stories from our master storytellers.",
-    icon: <Scroll className="text-brand-gold" size={32} />
+    sigil: "II",
+    title: "The Ranks",
+    desc: "Apprentice, Novice, Master, Guildmaster. The harder the country, the higher the rank you need beside you.",
   },
   {
-    title: "Guild Ranks",
-    desc: "Earn points for your discoveries and rise from a Novice to a legendary Guild Envoy.",
-    icon: <Award className="text-brand-gold" size={32} />
+    sigil: "III",
+    title: "The Charter",
+    desc: "No package, no checklist. A charter is a handshake — written in ink, sealed in tea, walked together.",
   },
   {
-    title: "Leaderboard",
-    desc: "Connect with fellow travelers and see who has discovered the most secrets across the steppe.",
-    icon: <Users className="text-brand-gold" size={32} />
-  }
+    sigil: "IV",
+    title: "The Raven",
+    desc: "Send word and we will write back. Every reply comes from a guide, not a sales desk.",
+  },
 ];
 
 export default function GuildSection() {
   return (
-    <section className="py-32 bg-brand-charcoal text-white overflow-hidden relative">
-      {/* Background patterns */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
-        <div className="absolute top-1/4 left-10 w-96 h-96 border border-brand-gold rounded-full rotate-45" />
-        <div className="absolute bottom-1/4 right-10 w-64 h-64 border border-brand-gold rounded-full" />
+    <section className="relative py-32 px-6 overflow-hidden bg-background">
+      {/* Diffused warm light pools — no sharp shadows */}
+      <div className="absolute inset-0 pointer-events-none opacity-60">
+        <div className="absolute top-1/4 left-10 w-[28rem] h-[28rem] rounded-full bg-accent/[0.04] blur-3xl" />
+        <div className="absolute bottom-1/4 right-10 w-[24rem] h-[24rem] rounded-full bg-highlight/[0.08] blur-3xl" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-24">
-          <motion.span 
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="text-center mb-20 max-w-3xl mx-auto">
+          <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-brand-gold font-bold tracking-[0.5em] uppercase text-[10px] block mb-6"
+            className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5"
           >
-            Gamified Exploration
-          </motion.span>
-          <motion.h2 
+            The Charter of the Guild
+          </motion.p>
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-7xl font-bricolage font-bold tracking-tight mb-8"
+            className="font-heading text-4xl md:text-6xl uppercase tracking-[0.1em] text-foreground ember-text-glow"
           >
-            Join the <span className="text-brand-gold">Gerege Guild</span>
+            How a charter is made
           </motion.h2>
-          <motion.p 
+          <div className="ink-divider mt-10 mb-10 max-w-md mx-auto" />
+          <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-white/60 max-w-2xl mx-auto font-space-grotesk text-lg leading-relaxed"
+            className="text-foreground/85 text-[18px] font-serif italic leading-relaxed"
           >
-            Turn your journey into a legendary saga. Our interactive guild platform tracks your progress, 
-            unlocks ancient lore, and rewards your curiosity with exclusive ranks and digital artifacts.
+            Four steps. No middlemen. The same four steps as a hundred years ago,
+            with the addition that you can begin them from a screen.
           </motion.p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((f, i) => (
+          {tenets.map((t, i) => (
             <motion.div
-              key={i}
+              key={t.sigil}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="p-10 bg-white/5 border border-white/10 rounded-[2rem] hover:border-brand-gold/50 transition-all duration-700 group relative overflow-hidden"
+              transition={{ duration: 0.6, delay: i * 0.1 }}
+              className="relative p-9 bg-surface/60 border border-highlight/30 hover:border-accent/60 transition-all duration-700 group ember-glow"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/5 blur-3xl -mr-16 -mt-16 group-hover:bg-brand-gold/10 transition-all" />
-              
-              <div className="mb-8 p-5 bg-brand-gold/10 rounded-2xl w-fit group-hover:bg-brand-gold transition-colors duration-500">
-                <div className="group-hover:text-brand-charcoal transition-colors">
-                  {f.icon}
-                </div>
+              <div className="mb-6 font-heading text-accent text-3xl tracking-[0.2em]">
+                {t.sigil}
               </div>
-              
-              <h3 className="text-2xl font-bold mb-4 font-bricolage text-white group-hover:text-brand-gold transition-colors">{f.title}</h3>
-              <p className="text-white/50 text-sm leading-relaxed font-space-grotesk group-hover:text-white/70 transition-colors">{f.desc}</p>
+              <h3 className="font-heading uppercase tracking-[0.1em] text-[20px] text-foreground mb-4">
+                {t.title}
+              </h3>
+              <p className="text-muted text-[15px] leading-relaxed font-serif">
+                {t.desc}
+              </p>
             </motion.div>
           ))}
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-24 text-center"
+          className="mt-24 text-center flex flex-col sm:flex-row gap-5 justify-center items-center"
         >
-          <Link 
-            href="/map" 
-            className="inline-flex items-center gap-4 bg-brand-gold text-brand-charcoal px-14 py-6 font-bold uppercase tracking-[0.3em] text-xs hover:bg-white transition-all duration-500 rounded-full shadow-2xl shadow-brand-gold/20 hover:scale-105 active:scale-95"
+          <Link
+            href="/guides"
+            className="px-12 py-5 border border-accent bg-accent/15 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-foreground ember-glow"
           >
-            Open Interactive Map
-            <span className="text-lg">→</span>
+            Open the Roster
+          </Link>
+          <Link
+            href="/map"
+            className="px-12 py-5 border border-highlight/50 hover:border-accent transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-muted hover:text-foreground"
+          >
+            See the Map
           </Link>
         </motion.div>
       </div>

@@ -1,57 +1,60 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { Building2, Landmark, Cloud } from 'lucide-react';
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import Link from "next/link";
 
-const FacebookIcon = ({ className }: { className?: string }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
-  </svg>
-);
-
-const features = [
+const pillars = [
   {
-    icon: <Building2 className="w-7 h-7 text-brand-gold" />,
-    title: "City & Culture",
-    description: "Explore Ulaanbaatar's vibrant life and ancient monasteries across the country."
+    sigil: "♞",
+    title: "By Horseback",
+    description:
+      "Most quests are still walked on horseback. The country reveals itself at a horse's pace, not a jeep's.",
   },
   {
-    icon: <Landmark className="w-7 h-7 text-brand-gold" />,
-    title: "Historic Landmarks",
-    description: "Journey through historic sites that shaped the great Mongol Empire."
+    sigil: "✦",
+    title: "Under a Ger",
+    description:
+      "Every charter sleeps at least one night under felt. No hotel chains, no buffets. Tea, fire, family.",
   },
   {
-    icon: <Cloud className="w-7 h-7 text-brand-gold" />,
-    title: "All Seasons",
-    description: "Experience Mongolia's beauty in summer's bloom or winter's pristine white."
-  }
+    sigil: "☉",
+    title: "Through All Seasons",
+    description:
+      "Summer green, autumn gold, winter blue. Mongolia is not one country — it is four, one per season.",
+  },
 ];
 
 export default function About() {
   return (
-    <section id="about" className="py-24 md:py-32 bg-white text-brand-charcoal overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          
-          <motion.div 
+    <section
+      id="lore"
+      className="relative py-28 md:py-36 px-6 overflow-hidden"
+    >
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-16 lg:gap-24 items-center">
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1 }}
             className="order-2 lg:order-1"
           >
-            <div className="relative overflow-hidden group border-l-4 border-brand-gold pl-4 shadow-xl">
-              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent z-10" />
-              <img 
-                src="/1.jpg" 
-                alt="Lead Guide" 
-                className="w-full h-[500px] md:h-[700px] object-cover grayscale group-hover:grayscale-0 transition-all duration-1000"
+            <div className="relative vignette ember-glow border border-highlight/40">
+              <img
+                src="/1.jpg"
+                alt="A guide of the Guild"
+                className="w-full h-[500px] md:h-[680px] object-cover grayscale-[20%] sepia-[28%] brightness-[0.92]"
               />
-              <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 text-white">
-                <p className="font-heading text-3xl md:text-4xl font-bold uppercase tracking-tighter">Vanya A.</p>
-                <p className="text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase text-brand-gold mt-2">Lead Guide</p>
+              <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 text-foreground">
+                <p className="font-accent italic text-accent text-[12px] tracking-[0.35em] uppercase">
+                  The Guildmaster
+                </p>
+                <p className="font-heading text-3xl md:text-4xl uppercase tracking-[0.08em] mt-2">
+                  Vanya Bazarvaana
+                </p>
+                <p className="font-accent italic text-muted text-[13px] mt-1">
+                  First Among Riders · Founder of the Guild
+                </p>
               </div>
             </div>
           </motion.div>
@@ -63,40 +66,55 @@ export default function About() {
             transition={{ duration: 1 }}
             className="order-1 lg:order-2"
           >
-            <span className="text-brand-gold font-bold tracking-[0.4em] uppercase text-[9px] mb-4 block">Our Vision</span>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold mb-8 tracking-tighter leading-[0.9] text-brand-charcoal">
-              Beyond the <span className="text-brand-gold">Guild</span>
-            </h2>
-            <p className="text-lg md:text-xl text-neutral-800 mb-12 leading-relaxed font-medium">
-              We create immersive journeys through Mongolia's diverse landscapes—from vibrant city hotspots and sacred monasteries to the raw beauty of the wilderness, spanning every season.
+            <p className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5">
+              The Hall
             </p>
-            
-            <div className="grid grid-cols-1 gap-8 md:gap-10 mb-12">
-              {features.map((feature, idx) => (
-                <div key={idx} className="flex gap-6 items-start">
-                  <div className="shrink-0 mt-1">{feature.icon}</div>
+            <h2 className="font-heading text-4xl sm:text-5xl md:text-6xl uppercase tracking-[0.08em] leading-[1.1] text-foreground">
+              We are a guild of <span className="text-accent">guides</span>,
+              not a tour agency.
+            </h2>
+
+            <div className="ink-divider my-10" />
+
+            <p className="text-foreground/90 text-[19px] leading-[1.9] font-serif italic mb-6">
+              The Guild was founded by a few quiet riders who refused to call
+              what they did <em>tourism</em>. A charter with us is a charter
+              with one guide — chosen by you, by name — who will walk this
+              country with you and answer for every mile of it.
+            </p>
+            <p className="text-muted text-[17px] leading-[1.85] font-serif mb-12">
+              No packages. No buses. No itineraries written before we meet you.
+              You choose the guide. The guide writes the road.
+            </p>
+
+            <div className="space-y-6 mb-12">
+              {pillars.map((p) => (
+                <div
+                  key={p.title}
+                  className="flex gap-5 items-start border-l-2 border-accent/40 pl-5"
+                >
+                  <span className="text-accent text-3xl leading-none mt-1">
+                    {p.sigil}
+                  </span>
                   <div>
-                    <h3 className="font-heading text-xl md:text-2xl font-bold mb-2 tracking-tight text-brand-charcoal">{feature.title}</h3>
-                    <p className="text-neutral-600 leading-relaxed text-sm">{feature.description}</p>
+                    <h3 className="font-heading uppercase tracking-[0.1em] text-[17px] text-foreground mb-1">
+                      {p.title}
+                    </h3>
+                    <p className="text-muted text-[15px] leading-relaxed font-serif">
+                      {p.description}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <a 
-              href="https://www.facebook.com/bazarvaana" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className={cn(
-                buttonVariants(),
-                "bg-brand-charcoal text-white hover:bg-brand-gold hover:text-brand-charcoal rounded-none px-10 py-6 md:px-12 md:py-7 h-auto text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase transition-all duration-300 shadow-lg"
-              )}
+            <Link
+              href="/guides"
+              className="inline-block px-10 py-5 border border-accent bg-accent/10 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-foreground ember-glow"
             >
-              <FacebookIcon className="w-4 h-4 mr-3" />
-              Connect with us
-            </a>
+              Meet the Guides
+            </Link>
           </motion.div>
-
         </div>
       </div>
     </section>
