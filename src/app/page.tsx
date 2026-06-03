@@ -2,6 +2,8 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import LayOfTheGuild from "@/components/LayOfTheGuild";
 import About from "@/components/About";
+import JourneysSection from "@/components/JourneysSection";
+import ChooseByInterest from "@/components/ChooseByInterest";
 import QuestPreview from "@/components/QuestPreview";
 import GuildSection from "@/components/GuildSection";
 import Reviews from "@/components/Reviews";
@@ -16,8 +18,10 @@ export default function Home() {
       <Hero />
       <LayOfTheGuild />
       <About />
-      <QuestPreview />
+      <JourneysSection />
+      <ChooseByInterest />
       <GuildSection />
+      <QuestPreview />
       <Reviews />
       <Gallery />
       <Footer />

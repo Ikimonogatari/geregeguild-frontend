@@ -1,3 +1,5 @@
+import type { JourneyCategory } from "./journeys";
+
 export type GuideLevel = "Apprentice" | "Novice" | "Master" | "Guildmaster";
 
 export type Specialization =
@@ -53,6 +55,14 @@ export type Guide = {
   talisman: string;
   seasonalWindow: string;
   languages: string[];
+  /** practical skills the guide brings to a charter */
+  skills: string[];
+  /** kinds of journeys this guide is matched to lead */
+  experienceTypes: string[];
+  /** journey categories this guide is suited to host */
+  suitableCategories: JourneyCategory[];
+  /** patron rating, out of 5 */
+  rating: number;
   openingScene: string;
   patronQuote: {
     text: string;
@@ -83,6 +93,18 @@ export const GUIDES: Guide[] = [
     talisman: "A bronze gerege — the passport tablet that names the Guild",
     seasonalWindow: "Open year-round; chooses by the patron, not the calendar",
     languages: ["Mongolian", "English", "Russian", "a little Kazakh"],
+    skills: ["Long expeditions", "Route design", "River fording", "Diplomacy", "Survival craft"],
+    experienceTypes: ["Grand traverses", "Spiritual roads", "First-time grand tours"],
+    suitableCategories: [
+      "Horseback",
+      "Spiritual",
+      "Historical & Cultural",
+      "Northern Taiga",
+      "Gobi Desert",
+      "4x4 Off-road",
+      "Custom",
+    ],
+    rating: 5.0,
     openingScene:
       "Your first night with Vanya begins in a ger he has known for twenty years. The host's mother pours suutei tsai before you have unbuttoned your coat. Vanya says almost nothing. By the third bowl, you will have asked him three questions and he will have answered four.",
     patronQuote: {
@@ -137,6 +159,10 @@ export const GUIDES: Guide[] = [
     talisman: "A bone whistle that calls camels back at dusk",
     seasonalWindow: "April through October — the desert sleeps in winter",
     languages: ["Mongolian", "English", "some Mandarin"],
+    skills: ["Desert navigation", "Camel handling", "Well-craft", "Dune climbing"],
+    experienceTypes: ["Desert crossings", "Photography roads", "Camel caravans"],
+    suitableCategories: ["Gobi Desert", "4x4 Off-road", "Nomadic Family Stay", "Custom"],
+    rating: 4.9,
     openingScene:
       "Your first evening with Oyuna ends on the ridge of the Khongor dunes. She does not speak. The sand begins to hum — a low, dry harmony that you will hear in your chest before you hear it in your ears. She has waited for this sound with patrons sixty times. She still smiles each time.",
     patronQuote: {
@@ -183,6 +209,10 @@ export const GUIDES: Guide[] = [
     talisman: "A reindeer-antler ladle, carved by his grandmother",
     seasonalWindow: "Year-round; winter ice from December to March is his favourite season",
     languages: ["Mongolian", "Tsaatan dialect", "English"],
+    skills: ["Boat-handling", "Taiga navigation", "Reindeer-camp craft", "Winter ice travel"],
+    experienceTypes: ["Lake circuits", "Taiga expeditions", "Reindeer-people stays"],
+    suitableCategories: ["Northern Taiga", "Nomadic Family Stay", "Spiritual", "Horseback", "Custom"],
+    rating: 4.9,
     openingScene:
       "Your first evening with Tüvshin ends in a Tsaatan tent, on reindeer-hide cushions, drinking tea made with milk from the herd grazing twenty paces away. The herder's children watch you the way deer watch a wolf — politely, and without fear.",
     patronQuote: {
@@ -237,6 +267,10 @@ export const GUIDES: Guide[] = [
     talisman: "A silver-clasped wolf-tooth, given to him by his uncle",
     seasonalWindow: "Best September through March; high passes only open in late summer",
     languages: ["Mongolian", "Kazakh", "English", "some Russian"],
+    skills: ["Mountaineering", "Cold-weather survival", "Glacier travel", "Eagle-hunter ties"],
+    experienceTypes: ["High expeditions", "Winter charters", "Hard off-road"],
+    suitableCategories: ["4x4 Off-road", "Northern Taiga", "Gobi Desert", "Custom"],
+    rating: 4.8,
     openingScene:
       "Your first night with Ganbold ends in a felt tent set against snow so bright the moon has nothing to add. He hands you tea, then a bowl of mutton broth, then a fur. He says: 'Sleep first. The eagles wait until morning.' He is, you discover later, technically correct.",
     patronQuote: {
@@ -283,6 +317,10 @@ export const GUIDES: Guide[] = [
     talisman: "A folded city map from 1989, annotated by her grandfather",
     seasonalWindow: "Open year-round; winter UB has a clarity she prefers",
     languages: ["Mongolian", "English", "Russian", "Korean"],
+    skills: ["City lore", "Food & markets", "Temple history", "After-dark culture"],
+    experienceTypes: ["City charters", "Culture & history", "Capital-and-steppe"],
+    suitableCategories: ["Historical & Cultural", "Monastery & Temple", "Custom"],
+    rating: 4.7,
     openingScene:
       "Your first night with Enkhjin ends at a basement music bar in the old district. The throat-singer is sober. The bartender is not. Enkhjin orders for you without asking, because the menu is in three languages and none of them are yours.",
     patronQuote: {
@@ -329,6 +367,10 @@ export const GUIDES: Guide[] = [
     talisman: "A small leather notebook, given to him by Vanya",
     seasonalWindow: "May through October — winter charters under a Master only",
     languages: ["Mongolian", "English", "French", "a little German"],
+    skills: ["Gentle riding", "Hospitality", "Translation", "Patience with first-timers"],
+    experienceTypes: ["Family stays", "First journeys", "Soft horseback roads"],
+    suitableCategories: ["Nomadic Family Stay", "Horseback", "Monastery & Temple", "Historical & Cultural"],
+    rating: 4.8,
     openingScene:
       "Your first night with Sükhbaatar ends in a small family ger an hour from the city. He plays a wooden flute, badly. The herder's grandfather plays a horsehair fiddle, well. By the end, you can no longer tell which one of them is leading the song.",
     patronQuote: {

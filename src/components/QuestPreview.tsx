@@ -26,7 +26,7 @@ export default function QuestPreview() {
             viewport={{ once: true }}
             className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5"
           >
-            The Roster
+            The Companions
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -35,13 +35,13 @@ export default function QuestPreview() {
             transition={{ duration: 0.8 }}
             className="font-heading text-4xl md:text-6xl uppercase tracking-[0.1em] text-foreground ember-text-glow"
           >
-            Three from the deck
+            The person who knows the way
           </motion.h2>
           <div className="ink-divider mt-10 mb-10 max-w-md mx-auto" />
           <p className="text-foreground/85 text-[18px] font-serif italic leading-relaxed">
-            A first look at the Guild's roster — the Guildmaster, a Master of
-            the south, and our newest Apprentice. Each guide carries a country.
-            See them all on the next page.
+            A guide is the last piece of the charter, not the whole of it — but
+            the heart of it. Each carries a country and a rank. Once you have a
+            road, we match the companion whose rank meets it.
           </p>
         </div>
 

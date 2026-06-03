@@ -6,23 +6,23 @@ import Link from "next/link";
 const tenets = [
   {
     sigil: "I",
-    title: "The Roster",
-    desc: "Every guide is a person you can name. Read their card. Pick the one whose road sounds like yours.",
+    title: "The Road",
+    desc: "First choose the Mongolia you want to meet — a journey, a region, an intent. The charter begins from the road, never from the guide.",
   },
   {
     sigil: "II",
-    title: "The Ranks",
-    desc: "Apprentice, Novice, Master, Guildmaster. The harder the country, the higher the rank you need beside you.",
+    title: "The Machine",
+    desc: "Then the vehicle matched to the terrain. Horse, Cruiser, furgon or expedition — the right way to cross the country you chose.",
   },
   {
     sigil: "III",
-    title: "The Charter",
-    desc: "No package, no checklist. A charter is a handshake — written in ink, sealed in tea, walked together.",
+    title: "The Companion",
+    desc: "Then the host and the guide, matched to the road. A guide whose rank meets the country — for a guide is not the product, the whole journey is.",
   },
   {
     sigil: "IV",
-    title: "The Raven",
-    desc: "Send word and we will write back. Every reply comes from a guide, not a sales desk.",
+    title: "The Charter",
+    desc: "We write back with a charted map and a written charter. Every reply comes from a guide, not a sales desk.",
   },
 ];
 

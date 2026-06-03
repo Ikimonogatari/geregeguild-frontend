@@ -30,10 +30,10 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Hall", href: "/" },
-    { name: "Lore", href: "/#lore" },
+    { name: "Journeys", href: "/journeys" },
     { name: "Guides", href: "/guides" },
     { name: "Map", href: "/map" },
-    { name: "Tales", href: "/#tales" },
+    { name: "Lore", href: "/#lore" },
   ];
 
   return (
@@ -102,10 +102,10 @@ export default function Navbar() {
               )}
 
               <Link
-                href="/guides"
+                href="/journeys"
                 className="px-6 py-3 border border-accent bg-accent/10 hover:bg-accent hover:text-background font-accent text-[11px] tracking-[0.3em] uppercase text-foreground transition-all duration-500 ember-glow"
               >
-                Choose Guide
+                Choose Journey
               </Link>
             </div>
 
@@ -180,11 +180,11 @@ export default function Navbar() {
             )}
 
             <Link
-              href="/guides"
+              href="/journeys"
               onClick={() => setIsMobileMenuOpen(false)}
               className="px-10 py-5 border border-accent bg-accent/10 font-accent text-foreground text-sm tracking-[0.3em] uppercase mt-8"
             >
-              Choose Guide
+              Choose Journey
             </Link>
           </motion.div>
         )}

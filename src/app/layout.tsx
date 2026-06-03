@@ -26,9 +26,9 @@ const imFell = IM_Fell_English({
 });
 
 export const metadata: Metadata = {
-  title: "Gerege Guild | A Fellowship of Mongolian Guides",
+  title: "Gerege Guild | Charters Across the Mongolian Wild",
   description:
-    "Choose your guide. Choose your quest. Ancient lands, master companions, and journeys written into parchment — across the Mongolian wild.",
+    "First choose the Mongolia you want to meet. Then we build the full charter around it — route, vehicle, host and guide. Every charter is built from the road upward.",
 };
 
 export default function RootLayout({

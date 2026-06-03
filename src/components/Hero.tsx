@@ -74,8 +74,9 @@ export default function Hero() {
             transition={{ duration: 1.2, delay: 0.5 }}
             className="mt-8 sm:mt-10 text-foreground/90 text-[15px] sm:text-[17px] md:text-[20px] max-w-md sm:max-w-xl md:max-w-2xl mx-auto italic font-serif leading-relaxed"
           >
-            Ancient roads. Master companions. Choose your guide as one chooses a
-            travelling friend — and the country will open to you.
+            First choose the Mongolia you want to meet. Then we build the full
+            charter around it — the route, the machine, the rhythm, and the
+            person who knows the way.
           </motion.p>
 
           <motion.div
@@ -85,17 +86,17 @@ export default function Hero() {
             className="mt-10 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center max-w-sm sm:max-w-none mx-auto"
           >
             <Link
-              href="/guides"
+              href="/journeys"
               className="px-8 sm:px-10 py-4 sm:py-5 border border-accent bg-accent/15 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[11px] sm:text-[12px] tracking-[0.3em] sm:tracking-[0.35em] uppercase text-foreground ember-glow text-center"
             >
-              Choose Your Guide
+              Choose Your Journey
             </Link>
-            <a
-              href="#lay"
+            <Link
+              href="/journeys#interest"
               className="px-8 sm:px-10 py-4 sm:py-5 border border-foreground/25 hover:border-accent transition-all duration-500 font-accent text-[11px] sm:text-[12px] tracking-[0.3em] sm:tracking-[0.35em] uppercase text-foreground/80 hover:text-foreground text-center"
             >
-              Read the Lore
-            </a>
+              Find Your Mongolia
+            </Link>
           </motion.div>
         </div>
       </div>

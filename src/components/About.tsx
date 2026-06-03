@@ -70,21 +70,22 @@ export default function About() {
               The Hall
             </p>
             <h2 className="font-heading text-4xl sm:text-5xl md:text-6xl uppercase tracking-[0.08em] leading-[1.1] text-foreground">
-              We are a guild of <span className="text-accent">guides</span>,
-              not a tour agency.
+              Every charter is built from the{" "}
+              <span className="text-accent">road</span> upward.
             </h2>
 
             <div className="ink-divider my-10" />
 
             <p className="text-foreground/90 text-[19px] leading-[1.9] font-serif italic mb-6">
               The Guild was founded by a few quiet riders who refused to call
-              what they did <em>tourism</em>. A charter with us is a charter
-              with one guide — chosen by you, by name — who will walk this
-              country with you and answer for every mile of it.
+              what they did <em>tourism</em>. We build whole journeys — a route
+              designed around you, the right machine for its terrain, the hosts
+              along the way, and a guide whose rank meets the road.
             </p>
             <p className="text-muted text-[17px] leading-[1.85] font-serif mb-12">
-              No packages. No buses. No itineraries written before we meet you.
-              You choose the guide. The guide writes the road.
+              First choose the Mongolia you want to meet. Then we match the
+              route, vehicle, host and guide around you. A guide is not the
+              product — the whole journey is.
             </p>
 
             <div className="space-y-6 mb-12">
@@ -109,10 +110,10 @@ export default function About() {
             </div>
 
             <Link
-              href="/guides"
+              href="/journeys"
               className="inline-block px-10 py-5 border border-accent bg-accent/10 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-foreground ember-glow"
             >
-              Meet the Guides
+              Choose Your Journey
             </Link>
           </motion.div>
         </div>
