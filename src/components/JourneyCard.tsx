@@ -50,10 +50,10 @@ export default function JourneyCard({ journey, index = 0 }: Props) {
 
         {/* Body */}
         <div className="p-6 flex flex-col flex-1">
-          <h3 className="font-heading uppercase tracking-[0.08em] text-[21px] leading-tight text-foreground group-hover:text-accent transition-colors duration-500">
+          <h3 className="font-heading uppercase tracking-[0.08em] text-[21px] leading-tight text-foreground group-hover:text-accent transition-colors duration-500 line-clamp-2 min-h-[2.5em] flex items-start">
             {journey.title}
           </h3>
-          <p className="mt-3 text-foreground/80 text-[15px] leading-relaxed font-serif italic line-clamp-3">
+          <p className="mt-3 text-foreground/80 text-[15px] leading-relaxed font-serif italic line-clamp-3 min-h-[4.9em]">
             {journey.hook}
           </p>
 
@@ -75,7 +75,7 @@ export default function JourneyCard({ journey, index = 0 }: Props) {
             </div>
           )}
 
-          <div className="mt-6 pt-4 border-t border-highlight/30 flex items-center justify-between">
+          <div className="mt-auto pt-4 border-t border-highlight/30 flex items-center justify-between">
             <span className="font-accent uppercase tracking-[0.2em] text-[11px] text-muted">
               {isCustom ? "By design" : "From"}{" "}
               <span className="text-accent not-italic">
