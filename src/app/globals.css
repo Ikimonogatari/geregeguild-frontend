@@ -150,3 +150,179 @@ main, nav, footer {
   position: relative;
   z-index: 2;
 }
+
+/* ─── Atmospheric animation primitives ─── */
+
+/* Slow uneven candle-flicker — for hero titles and major headings */
+@keyframes candle-flicker {
+  0%, 100% {
+    text-shadow:
+      0 0 18px rgba(201, 146, 42, 0.35),
+      0 2px 4px rgba(0, 0, 0, 0.6);
+  }
+  18% {
+    text-shadow:
+      0 0 28px rgba(201, 146, 42, 0.55),
+      0 0 8px rgba(201, 146, 42, 0.25),
+      0 2px 4px rgba(0, 0, 0, 0.6);
+  }
+  32% {
+    text-shadow:
+      0 0 14px rgba(201, 146, 42, 0.28),
+      0 2px 4px rgba(0, 0, 0, 0.6);
+  }
+  58% {
+    text-shadow:
+      0 0 32px rgba(201, 146, 42, 0.6),
+      0 0 10px rgba(201, 146, 42, 0.3),
+      0 2px 4px rgba(0, 0, 0, 0.6);
+  }
+  72% {
+    text-shadow:
+      0 0 16px rgba(201, 146, 42, 0.32),
+      0 2px 4px rgba(0, 0, 0, 0.6);
+  }
+}
+
+.candle-flicker {
+  animation: candle-flicker 7s ease-in-out infinite;
+}
+
+/* Slow breathing on radial spotlights, ember rings */
+@keyframes ember-breath {
+  0%, 100% { opacity: 0.78; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.06); }
+}
+
+.ember-breath {
+  animation: ember-breath 6s ease-in-out infinite;
+}
+
+/* Dust mote rise — used on .mote elements with random delay/duration via inline style */
+@keyframes mote-rise {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  12% { opacity: 0.55; }
+  88% { opacity: 0.45; }
+  100% {
+    transform: translate3d(var(--drift, 24px), -120vh, 0);
+    opacity: 0;
+  }
+}
+
+.mote {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(240, 198, 120, 0.85);
+  box-shadow: 0 0 8px 1px rgba(201, 146, 42, 0.55);
+  pointer-events: none;
+  animation: mote-rise linear infinite;
+  will-change: transform, opacity;
+}
+
+/* Ember-trace border draw — for cards on hover */
+@keyframes ember-trace {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Wax-seal pulse — for CTAs and "chosen" markers */
+@keyframes wax-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 146, 42, 0.35); }
+  50%      { box-shadow: 0 0 0 6px rgba(201, 146, 42, 0); }
+}
+
+.wax-pulse {
+  animation: wax-pulse 2.4s ease-out infinite;
+}
+
+/* Ink draw — used to animate the height/width of a stroke into view */
+@keyframes ink-draw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.ink-draw {
+  transform-origin: left center;
+  animation: ink-draw 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+/* Cursor ember spark — fades up and out like an ember flicked off a torch */
+@keyframes spark-die {
+  0%   { opacity: 1;   transform: translate(-50%, -50%) scale(1); }
+  60%  { opacity: 0.7; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--drift, 0px)), calc(-50% - 44px)) scale(0.3);
+  }
+}
+
+/* Torch-light sweep across hero title — single pass on load */
+@keyframes torchlight-sweep {
+  0%   { background-position: -120% 50%; }
+  100% { background-position: 220% 50%; }
+}
+
+.title-shimmer {
+  position: relative;
+}
+.title-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 220, 140, 0.55) 48%,
+    rgba(255, 220, 140, 0.9) 50%,
+    rgba(255, 220, 140, 0.55) 52%,
+    transparent 65%
+  );
+  background-size: 200% 100%;
+  background-position: -120% 50%;
+  -webkit-mask-image: linear-gradient(180deg, #000, #000);
+  mix-blend-mode: screen;
+  animation: torchlight-sweep 2.6s cubic-bezier(0.2, 0.7, 0.2, 1) 1.6s 1 forwards;
+}
+
+/* Card firelight — cursor-tracked highlight overlay (positions via CSS vars) */
+.card-firelight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(
+    260px 200px at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 210, 130, 0.18),
+    rgba(201, 146, 42, 0.06) 40%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+}
+
+.group:hover .card-firelight {
+  opacity: 1;
+}
+
+/* SVG quill-draw stroke — pairs with strokeDasharray motion.path */
+.quill-stroke {
+  filter: drop-shadow(0 0 8px rgba(201, 146, 42, 0.5));
+}
+
+/* Respect users who prefer reduced motion — kill the ambient loops */
+@media (prefers-reduced-motion: reduce) {
+  .candle-flicker,
+  .ember-breath,
+  .mote,
+  .wax-pulse,
+  .ink-draw,
+  .title-shimmer::after {
+    animation: none !important;
+  }
+}

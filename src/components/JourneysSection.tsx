@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import JourneyCard from "@/components/JourneyCard";
+import QuillDivider from "@/components/QuillDivider";
 import { JOURNEYS } from "@/lib/journeys";
 
 export default function JourneysSection() {
@@ -11,15 +12,40 @@ export default function JourneysSection() {
 
   return (
     <section id="journeys" className="relative py-28 md:py-36 px-6 overflow-hidden bg-background">
-      <div className="max-w-7xl mx-auto">
+      {/* Slow ember wash, drifts the breath of the section */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none ember-breath"
+        style={{
+          background:
+            "radial-gradient(60% 40% at 50% 10%, rgba(201,146,42,0.08), transparent 70%)",
+        }}
+      />
+      <div className="relative max-w-7xl mx-auto">
         <div className="text-center mb-16 max-w-3xl mx-auto">
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5"
+            className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5 inline-flex items-center gap-4"
           >
-            The Roads
+            <motion.span
+              initial={{ scaleX: 0, opacity: 0 }}
+              whileInView={{ scaleX: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9, delay: 0.1, ease: [0.2, 0.7, 0.2, 1] }}
+              style={{ transformOrigin: "right" }}
+              className="block w-10 h-px bg-accent/60"
+            />
+            <span>The Roads</span>
+            <motion.span
+              initial={{ scaleX: 0, opacity: 0 }}
+              whileInView={{ scaleX: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9, delay: 0.1, ease: [0.2, 0.7, 0.2, 1] }}
+              style={{ transformOrigin: "left" }}
+              className="block w-10 h-px bg-accent/60"
+            />
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -30,7 +56,9 @@ export default function JourneysSection() {
           >
             First choose the Mongolia<br className="hidden sm:block" /> you want to meet
           </motion.h2>
-          <div className="ink-divider mt-10 mb-10 max-w-md mx-auto" />
+          <div className="flex justify-center mt-10 mb-10">
+            <QuillDivider width={360} />
+          </div>
           <p className="text-foreground/85 text-[18px] font-serif italic leading-relaxed">
             Every charter is built from the road upward. Choose a journey, and we
             match the route, the vehicle, the host and the guide around you.
