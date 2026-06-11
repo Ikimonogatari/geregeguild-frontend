@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { EASE, DUR } from "@/lib/motion";
 import { Menu, X, User as UserIcon } from "lucide-react";
 import { useAuth } from "./Providers";
 import { AuthModal } from "./AuthModal";
@@ -40,12 +41,24 @@ export default function Navbar() {
     <>
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b",
-          isScrolled
-            ? "bg-background/95 backdrop-blur-md h-20 border-accent/20 shadow-[0_8px_30px_-12px_rgba(201,146,42,0.25)]"
-            : "bg-transparent h-28 border-transparent"
+          "fixed top-0 left-0 right-0 z-50 transition-[height] duration-500",
+          isScrolled ? "h-20" : "h-28"
         )}
       >
+        {/* Letterhead background — slides down + fades in once past the hero */}
+        <AnimatePresence>
+          {isScrolled && (
+            <motion.div
+              key="nav-letterhead"
+              aria-hidden
+              initial={{ y: "-100%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              exit={{ y: "-100%", opacity: 0 }}
+              transition={{ duration: DUR.base, ease: EASE }}
+              className="absolute inset-0 -z-10 bg-surface/90 backdrop-blur-md border-b border-accent/20 ember-glow"
+            />
+          )}
+        </AnimatePresence>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-full">
           <div className="flex items-center justify-between h-full">
             <div className="shrink-0 py-2">
@@ -54,7 +67,7 @@ export default function Navbar() {
                   src="/geregeguild.png"
                   alt="Gerege Guild"
                   className={cn(
-                    "transition-all duration-500 w-auto object-contain",
+                    "candle-flicker transition-all duration-500 w-auto object-contain",
                     isScrolled ? "h-14 md:h-16" : "h-20 md:h-24"
                   )}
                 />

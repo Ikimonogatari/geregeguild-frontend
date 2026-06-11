@@ -5,6 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import type { Journey } from "@/lib/journeys";
 import { CATEGORY_SIGIL } from "@/lib/journeys";
 import { formatPrice } from "@/lib/format";
+import { EASE, DUR, STAGGER } from "@/lib/motion";
 import JourneyQuickLook from "./JourneyQuickLook";
 
 type Props = {
@@ -33,9 +34,9 @@ export default function JourneyCard({ journey, index = 0 }: Props) {
   const mx = useMotionValue(0.5);
   const my = useMotionValue(0.5);
 
-  // Tilt — gentle, weighty parchment angle. ~7° max each axis.
-  const rotateX = useTransform(my, [0, 1], [7, -7]);
-  const rotateY = useTransform(mx, [0, 1], [-9, 9]);
+  // Tilt — subtle, cinematic parchment angle (~3° max each axis).
+  const rotateX = useTransform(my, [0, 1], [3, -3]);
+  const rotateY = useTransform(mx, [0, 1], [-3, 3]);
   const sRotX = useSpring(rotateX, { stiffness: 120, damping: 18, mass: 0.6 });
   const sRotY = useSpring(rotateY, { stiffness: 120, damping: 18, mass: 0.6 });
 
@@ -68,7 +69,7 @@ export default function JourneyCard({ journey, index = 0 }: Props) {
         initial={{ opacity: 0, y: 36 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.7, delay: index * 0.07, ease: "easeOut" }}
+        transition={{ duration: DUR.base, delay: index * STAGGER.tight, ease: EASE }}
         style={{
           rotateX: sRotX,
           rotateY: sRotY,

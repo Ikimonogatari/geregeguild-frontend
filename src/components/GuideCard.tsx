@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Guide } from "@/lib/guides";
 import { SPECIALIZATION_SIGIL } from "@/lib/guides";
+import { EASE, DUR, STAGGER } from "@/lib/motion";
 
 type Props = {
   guide: Guide;
@@ -28,7 +29,7 @@ export default function GuideCard({ guide, index = 0 }: Props) {
       initial={{ opacity: 0, y: 40, rotate: tilt - 4 }}
       whileInView={{ opacity: 1, y: 0, rotate: tilt }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.9, delay: index * 0.08, ease: "easeOut" }}
+      transition={{ duration: DUR.slow, delay: index * STAGGER.base, ease: EASE }}
       className="w-[290px] sm:w-[310px] h-[490px] sm:h-[500px]"
     >
       <Link
@@ -55,7 +56,7 @@ export default function GuideCard({ guide, index = 0 }: Props) {
             <img
               src={guide.portrait}
               alt={guide.name}
-              className="w-full h-full object-cover grayscale-[20%] sepia-[35%] brightness-[0.9] transition-all duration-700 group-hover:brightness-[1.02] group-hover:sepia-[15%]"
+              className="w-full h-full object-cover grayscale-[20%] sepia-[35%] brightness-[0.9] transition-all duration-700 group-hover:grayscale-0 group-hover:sepia-0 group-hover:brightness-100"
             />
             <div className="absolute -bottom-3 -right-3 w-10 h-10 rounded-full bg-[#7a2a18] border-2 border-[#3a1108] flex items-center justify-center font-heading text-[#f0e2c2] text-[12px] tracking-wider shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
               GG

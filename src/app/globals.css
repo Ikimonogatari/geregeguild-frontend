@@ -8,6 +8,8 @@
   --accent: #C9922A;
   --highlight: #8B5E3C;
   --veil: rgba(13, 10, 7, 0.7);
+  /* Scroll progress 0→1, written by ScrollAtmosphere; deepens the vignette. */
+  --scroll-depth: 0;
 }
 
 @theme inline {
@@ -34,8 +36,14 @@
   --color-brand-gold: #C9922A;
 }
 
-html {
-  scroll-behavior: smooth;
+/* Lenis owns smooth scrolling; CSS smooth-scroll would fight it. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
 
 body {
@@ -67,7 +75,10 @@ body::after {
   pointer-events: none;
   z-index: 1;
   background: radial-gradient(120% 80% at 50% -10%, rgba(201, 146, 42, 0.08), transparent 60%),
-              radial-gradient(140% 100% at 50% 110%, rgba(13, 10, 7, 0.65), transparent 55%);
+              radial-gradient(140% 100% at 50% 110%, rgba(13, 10, 7, 0.65), transparent 55%),
+              /* deepens as the user scrolls — alpha driven by --scroll-depth */
+              radial-gradient(135% 120% at 50% 50%, rgb(13 10 7 / calc(var(--scroll-depth, 0) * 0.55)), transparent 70%);
+  transition: background 0.2s linear;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -145,8 +156,10 @@ h1, h2, h3, h4, h5, h6 {
   background: radial-gradient(120% 90% at 50% 50%, transparent 50%, rgba(13, 10, 7, 0.85) 100%);
 }
 
-/* Make every page section content sit above the parchment grain overlay */
-main, nav, footer {
+/* Make every page section content sit above the parchment grain overlay.
+   NB: `nav` is intentionally excluded — it is `position: fixed` (z-50) and an
+   unlayered `position: relative` here would override the Tailwind utility. */
+main, footer {
   position: relative;
   z-index: 2;
 }

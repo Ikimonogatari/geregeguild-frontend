@@ -28,7 +28,7 @@ const tenets = [
 
 export default function GuildSection() {
   return (
-    <section className="relative py-32 px-6 overflow-hidden bg-background">
+    <section className="relative py-20 px-6 overflow-hidden bg-background">
       {/* Diffused warm light pools — no sharp shadows */}
       <div className="absolute inset-0 pointer-events-none opacity-60">
         <div className="absolute top-1/4 left-10 w-[28rem] h-[28rem] rounded-full bg-accent/[0.04] blur-3xl" />

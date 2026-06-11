@@ -23,7 +23,7 @@ export default function Reviews() {
   return (
     <section
       id="tales"
-      className="relative py-28 md:py-36 px-6 overflow-hidden bg-background"
+      className="relative py-16 md:py-24 px-6 overflow-hidden bg-background"
     >
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-10">

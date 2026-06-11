@@ -3,7 +3,7 @@
 import { motion, type HTMLMotionProps } from "framer-motion";
 import { revealVariants, staggerParent, VIEWPORT, DUR } from "@/lib/motion";
 
-type RevealKind = "rise" | "fade" | "scale" | "wipe" | "blur";
+type RevealKind = "rise" | "fade" | "scale" | "wipe" | "blur" | "iris" | "slideLeft";
 
 type RevealProps = {
   as?: "div" | "section" | "li" | "span" | "p" | "h2" | "h3";

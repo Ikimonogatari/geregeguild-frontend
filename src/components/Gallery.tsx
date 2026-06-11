@@ -31,7 +31,7 @@ export default function Gallery() {
   }, [api]);
 
   return (
-    <section className="relative py-28 md:py-36 px-6 overflow-hidden bg-background">
+    <section className="relative py-16 md:py-24 px-6 overflow-hidden bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="mb-16 text-center">
           <p className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5">

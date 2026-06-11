@@ -15,7 +15,7 @@ export default function ChooseByInterest({ withHeading = true }: Props) {
   const matches = selected ? journeysForInterest(selected) : [];
 
   return (
-    <section id="interest" className="relative py-28 md:py-36 px-6 overflow-hidden bg-background">
+    <section id="interest" className="relative py-16 md:py-24 px-6 overflow-hidden bg-background">
       {/* Diffused warm light pools */}
       <div className="absolute inset-0 pointer-events-none opacity-60">
         <div className="absolute top-1/4 right-10 w-[26rem] h-[26rem] rounded-full bg-accent/[0.04] blur-3xl" />

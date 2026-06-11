@@ -21,7 +21,7 @@ export default function GuideRankBadge({ level, size = "md", withName = false }:
   return (
     <div className="flex items-center gap-2.5">
       <span
-        className="relative inline-flex items-center justify-center rounded-full font-heading shrink-0"
+        className="wax-pulse relative inline-flex items-center justify-center rounded-full font-heading shrink-0"
         title={`${medal.name} · ${level}`}
         style={{
           width: s.d,

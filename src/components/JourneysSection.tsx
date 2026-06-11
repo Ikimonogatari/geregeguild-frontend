@@ -11,7 +11,7 @@ export default function JourneysSection() {
   const featured = JOURNEYS.filter((j) => j.category !== "Custom").slice(0, 6);
 
   return (
-    <section id="journeys" className="relative py-28 md:py-36 px-6 overflow-hidden bg-background">
+    <section id="journeys" className="relative py-16 md:py-24 px-6 overflow-hidden bg-background">
       {/* Slow ember wash, drifts the breath of the section */}
       <div
         aria-hidden

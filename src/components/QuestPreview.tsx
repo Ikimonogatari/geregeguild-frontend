@@ -16,7 +16,7 @@ export default function QuestPreview() {
   return (
     <section
       id="roster"
-      className="relative py-28 md:py-36 px-6 overflow-hidden bg-background"
+      className="relative py-16 md:py-24 px-6 overflow-hidden bg-background"
     >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-20 max-w-3xl mx-auto">

@@ -13,7 +13,7 @@ export default function LayOfTheGuild() {
   return (
     <section
       id="lay"
-      className="relative px-6 py-32 md:py-40 overflow-hidden bg-background"
+      className="relative px-6 py-20 md:py-40 overflow-hidden bg-background"
     >
       {/* Slow ride video, deeply veiled */}
       <div className="absolute inset-0 z-0">

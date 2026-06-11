@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Cinzel, Crimson_Text, IM_Fell_English } from "next/font/google";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
+import "lenis/dist/lenis.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/Providers";
+import ScrollAtmosphere from "@/components/ScrollAtmosphere";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -44,6 +46,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Providers>
           {children}
+          <ScrollAtmosphere />
           <Toaster />
         </Providers>
       </body>

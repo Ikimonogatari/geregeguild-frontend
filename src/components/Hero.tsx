@@ -2,8 +2,8 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { EASE } from "@/lib/motion";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { EASE, DUR } from "@/lib/motion";
 
 // Deterministic dust motes — static seeds so SSR/CSR match
 const MOTES = [
@@ -73,11 +73,30 @@ export default function Hero() {
   const motesY      = useTransform(scrollYProgress, [0, 1], ["0%",  "-40%"]);
   const cueOp       = useTransform(scrollYProgress, [0, 0.3], [1,   0]);
 
+  // Cinematic letterbox bars retract once on load (instant if reduced-motion).
+  const prefersReduced = useReducedMotion();
+  const barFrom = prefersReduced ? "0vh" : "7vh";
+
   return (
     <section
       ref={heroRef}
       className="relative h-svh min-h-[640px] w-full overflow-hidden bg-background"
     >
+      {/* Cinematic letterbox — thin bars top/bottom that retract after load */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 z-30 bg-background"
+        initial={{ height: barFrom }}
+        animate={{ height: "0vh" }}
+        transition={{ duration: DUR.slow, delay: 0.3, ease: EASE }}
+      />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-30 bg-background"
+        initial={{ height: barFrom }}
+        animate={{ height: "0vh" }}
+        transition={{ duration: DUR.slow, delay: 0.3, ease: EASE }}
+      />
       {/* Video — full bleed, sepia-washed, parallax drift + slow zoom on scroll */}
       <motion.div
         className="absolute inset-0 z-0"

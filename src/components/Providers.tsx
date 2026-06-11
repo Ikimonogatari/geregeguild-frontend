@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { ReactLenis } from 'lenis/react';
 import { toast } from 'sonner';
 
 export type POIType = 'historic' | 'view' | 'adventure' | 'culture';
@@ -81,6 +82,11 @@ export function Providers({ children }: { children: ReactNode }) {
   const [gameState, setGameState] = useState<GameState>({ points: 0, unlockedPOIs: [] });
   const [pois, setPois] = useState<POI[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }, []);
   const [feed, setFeed] = useState<FeedEntry[]>([]);
 
   useEffect(() => {
@@ -209,18 +215,27 @@ export function Providers({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      <GameContext.Provider value={{
-        gameState,
-        rank: user?.rank || 'Novice',
-        pois,
-        leaderboard,
-        feed,
-        checkIn,
-        refreshSocial
-      }}>
-        {children}
-      </GameContext.Provider>
-    </AuthContext.Provider>
+    <ReactLenis
+      root
+      options={{
+        lerp: reducedMotion ? 1 : 0.1,
+        duration: 1.1,
+        smoothWheel: !reducedMotion,
+      }}
+    >
+      <AuthContext.Provider value={{ user, login, logout }}>
+        <GameContext.Provider value={{
+          gameState,
+          rank: user?.rank || 'Novice',
+          pois,
+          leaderboard,
+          feed,
+          checkIn,
+          refreshSocial
+        }}>
+          {children}
+        </GameContext.Provider>
+      </AuthContext.Provider>
+    </ReactLenis>
   );
 }
