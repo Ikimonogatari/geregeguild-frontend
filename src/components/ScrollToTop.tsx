@@ -37,7 +37,10 @@ export default function ScrollToTop() {
           exit={{ opacity: 0, scale: 0.8 }}
           onClick={scrollToTop}
           className={cn(
-            "fixed bottom-8 right-8 z-100 p-4 bg-brand-gold text-brand-charcoal shadow-2xl transition-all duration-300 hover:bg-white border-none focus:outline-none"
+            // Only shown at lg+ where there's a real outer margin
+            // (max-w-7xl content gutter). On mobile + tablet the FAB
+            // overlaps card edges, so we leave native scroll for those.
+            "hidden lg:flex fixed bottom-8 right-8 z-100 p-4 bg-brand-gold text-brand-charcoal shadow-2xl transition-all duration-300 hover:bg-white border-none focus:outline-none"
           )}
           aria-label="Scroll to top"
         >

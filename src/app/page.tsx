@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import HeroEpigraph from "@/components/HeroEpigraph";
 import LayOfTheGuild from "@/components/LayOfTheGuild";
 import About from "@/components/About";
 import JourneysSection from "@/components/JourneysSection";
@@ -21,6 +22,7 @@ export default function Home() {
     <main className="min-h-screen bg-background overflow-x-clip">
       <Navbar />
       <Hero />
+      <HeroEpigraph />
       <LayOfTheGuild />
       <About />
       <JourneysSection />

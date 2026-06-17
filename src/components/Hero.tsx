@@ -190,7 +190,7 @@ export default function Hero() {
               return (
                 <span
                   key={word.text}
-                  className={`inline-block align-baseline ${wi === 0 ? "sm:mr-[0.28em]" : ""} ${
+                  className={`inline-block align-baseline ${wi === 0 ? "mr-3 sm:mr-[0.28em]" : ""} ${
                     word.accent ? "text-accent" : ""
                   }`}
                 >

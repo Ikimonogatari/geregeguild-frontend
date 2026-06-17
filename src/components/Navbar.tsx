@@ -74,8 +74,9 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center space-x-10 lg:space-x-12">
+            {/* Desktop Nav — hamburger stays until lg so the full link row
+                doesn't get cramped + clipped at tablet widths. */}
+            <div className="hidden lg:flex items-center space-x-8 xl:space-x-12">
               {navLinks.map((link, idx) => (
                 <Link
                   key={idx}
@@ -122,9 +123,9 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* Mobile Toggle */}
+            {/* Mobile/Tablet Toggle */}
             <button
-              className="md:hidden text-foreground p-2"
+              className="lg:hidden text-foreground p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Menu"
             >
