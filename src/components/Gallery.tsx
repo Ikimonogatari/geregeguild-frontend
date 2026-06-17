@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel,
@@ -11,6 +12,13 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
+import {
+  DUR,
+  STAGGER,
+  VIEWPORT,
+  revealVariants,
+  staggerParent,
+} from "@/lib/motion";
 
 const images = ["/4.jpg", "/2.jpg", "/3.jpg", "/7.jpg", "/8.jpg", "/9.jpg"];
 
@@ -33,20 +41,44 @@ export default function Gallery() {
   return (
     <section className="relative py-16 md:py-24 px-6 overflow-hidden bg-background">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-16 text-center">
-          <p className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5">
-            The Map's Edge
-          </p>
-          <h2 className="font-heading text-4xl md:text-6xl uppercase tracking-[0.08em] text-foreground ember-text-glow mb-8">
+        <motion.div
+          variants={staggerParent(STAGGER.base, STAGGER.base)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="mb-16 text-center"
+        >
+          <motion.p
+            variants={revealVariants("rise", DUR.base)}
+            className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5"
+          >
+            The Map&apos;s Edge
+          </motion.p>
+          <motion.h2
+            variants={revealVariants("blur", DUR.slow)}
+            className="font-heading text-4xl md:text-6xl uppercase tracking-[0.08em] text-foreground ember-text-glow mb-8"
+          >
             The Mongolian <span className="text-accent">plateau</span>
-          </h2>
-          <div className="ink-divider mb-10 max-w-md mx-auto" />
-          <p className="text-foreground/85 text-[18px] max-w-xl mx-auto font-serif italic">
+          </motion.h2>
+          <motion.div
+            variants={revealVariants("wipe", DUR.base)}
+            className="ink-divider mb-10 max-w-md mx-auto"
+          />
+          <motion.p
+            variants={revealVariants("rise", DUR.base)}
+            className="text-foreground/85 text-[18px] max-w-xl mx-auto font-serif italic"
+          >
             What the country looks like, when no one is performing for a camera.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        <div className="relative min-h-[400px]">
+        <motion.div
+          variants={revealVariants("fade", DUR.slow)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="relative min-h-[400px]"
+        >
           {mounted && (
             <Carousel
               setApi={setApi}
@@ -88,7 +120,7 @@ export default function Gallery() {
               </div>
             </Carousel>
           )}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

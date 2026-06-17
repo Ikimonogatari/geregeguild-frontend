@@ -2,6 +2,13 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import {
+  DUR,
+  STAGGER,
+  VIEWPORT,
+  revealVariants,
+  staggerParent,
+} from "@/lib/motion";
 
 const tenets = [
   {
@@ -36,45 +43,50 @@ export default function GuildSection() {
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-20 max-w-3xl mx-auto">
+        <motion.div
+          variants={staggerParent(STAGGER.base, STAGGER.base)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="text-center mb-20 max-w-3xl mx-auto"
+        >
           <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            variants={revealVariants("rise", DUR.base)}
             className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5"
           >
             The Charter of the Guild
           </motion.p>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            variants={revealVariants("blur", DUR.slow)}
             className="font-heading text-4xl md:text-6xl uppercase tracking-[0.1em] text-foreground ember-text-glow"
           >
             How a charter is made
           </motion.h2>
-          <div className="ink-divider mt-10 mb-10 max-w-md mx-auto" />
+          <motion.div
+            variants={revealVariants("wipe", DUR.base)}
+            className="ink-divider mt-10 mb-10 max-w-md mx-auto"
+          />
           <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            variants={revealVariants("rise", DUR.base)}
             className="text-foreground/85 text-[18px] font-serif italic leading-relaxed"
           >
             Four steps. No middlemen. The same four steps as a hundred years ago,
             with the addition that you can begin them from a screen.
           </motion.p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {tenets.map((t, i) => (
+        {/* Tenets — staggered as one beat instead of per-card delays. */}
+        <motion.div
+          variants={staggerParent(STAGGER.base)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+        >
+          {tenets.map((t) => (
             <motion.div
               key={t.sigil}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
+              variants={revealVariants("rise", DUR.slow)}
               className="relative p-9 bg-surface/60 border border-highlight/30 hover:border-accent/60 transition-all duration-700 group ember-glow"
             >
               <div className="mb-6 font-heading text-accent text-3xl tracking-[0.2em]">
@@ -88,13 +100,13 @@ export default function GuildSection() {
               </p>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          variants={revealVariants("rise", DUR.slow)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
           className="mt-24 text-center flex flex-col sm:flex-row gap-5 justify-center items-center"
         >
           <Link

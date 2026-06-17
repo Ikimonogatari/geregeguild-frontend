@@ -1,6 +1,14 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  DUR,
+  EASE,
+  STAGGER,
+  VIEWPORT,
+  revealVariants,
+  staggerParent,
+} from "@/lib/motion";
 
 const STANZAS = [
   "There is a country east of the maps, where the grass goes farther than the eye can decide.",
@@ -10,14 +18,18 @@ const STANZAS = [
 ];
 
 export default function LayOfTheGuild() {
+  const prefersReduced = useReducedMotion();
+
   return (
     <section
       id="lay"
       className="relative px-6 py-20 md:py-40 overflow-hidden bg-background"
     >
-      {/* Slow ride video, deeply veiled */}
+      {/* Slow ride video — Ken-Burns drift on top of the existing veiling.
+          A very gentle 30s scale 1 → 1.06 reads as cinematic ambient motion
+          without ever being noticed as an animation. */}
       <div className="absolute inset-0 z-0">
-        <video
+        <motion.video
           autoPlay
           loop
           muted
@@ -26,16 +38,22 @@ export default function LayOfTheGuild() {
           style={{
             filter: "sepia(35%) saturate(70%) brightness(0.55) contrast(1.05)",
           }}
+          initial={{ scale: 1 }}
+          animate={prefersReduced ? { scale: 1 } : { scale: 1.06 }}
+          transition={{
+            duration: 30,
+            ease: "linear",
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
         >
           <source src="/ride.mp4" type="video/mp4" />
-        </video>
+        </motion.video>
       </div>
 
       {/* Atmospheric overlays */}
       <div aria-hidden className="absolute inset-0 z-[1] pointer-events-none">
-        {/* Heavy uniform dark veil */}
         <div className="absolute inset-0 bg-[#0D0A07]/82" />
-        {/* Vignette */}
         <div
           className="absolute inset-0"
           style={{
@@ -43,7 +61,6 @@ export default function LayOfTheGuild() {
               "radial-gradient(110% 80% at 50% 50%, transparent 10%, rgba(13,10,7,0.5) 65%, rgba(13,10,7,0.95) 100%)",
           }}
         />
-        {/* Ember pool behind text */}
         <div
           className="absolute inset-0"
           style={{
@@ -51,61 +68,62 @@ export default function LayOfTheGuild() {
               "radial-gradient(40% 50% at 50% 48%, rgba(201,146,42,0.10), transparent 70%)",
           }}
         />
-        {/* Edges fade into adjacent sections */}
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
       </div>
 
-      <div className="max-w-4xl mx-auto relative z-10 text-center">
+      {/* The whole prologue reveals as one orchestrated sequence. */}
+      <motion.div
+        variants={staggerParent(STAGGER.base, STAGGER.base)}
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT}
+        className="max-w-4xl mx-auto relative z-10 text-center"
+      >
         <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          variants={revealVariants("rise", DUR.base)}
           className="font-accent italic text-accent text-[13px] tracking-[0.4em] uppercase mb-6"
         >
           The Lay of the Guild
         </motion.p>
 
         <motion.h2
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
+          variants={revealVariants("blur", DUR.slow)}
           className="font-heading text-3xl sm:text-5xl uppercase tracking-[0.1em] text-foreground ember-text-glow mb-12"
         >
           A short prologue
         </motion.h2>
 
-        <div className="ink-divider mb-12 max-w-md mx-auto" />
+        <motion.div
+          variants={revealVariants("wipe", DUR.base)}
+          className="ink-divider mb-12 max-w-md mx-auto"
+        />
 
-        <div className="space-y-8">
+        <motion.div
+          variants={staggerParent(STAGGER.loose)}
+          className="space-y-8"
+        >
           {STANZAS.map((line, i) => (
             <motion.p
               key={i}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 1, delay: i * 0.18, ease: "easeOut" }}
+              variants={revealVariants("rise", DUR.slow)}
               className="font-serif italic text-foreground/95 text-[20px] sm:text-[24px] leading-[1.7]"
+              transition={{ duration: DUR.slow, ease: EASE }}
             >
               {line}
             </motion.p>
           ))}
-        </div>
+        </motion.div>
 
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 1 }}
+          variants={revealVariants("fade", DUR.slow)}
           className="mt-14 flex items-center justify-center gap-4 text-accent font-accent text-[16px] tracking-[0.6em]"
         >
           <span>—</span>
           <span>✦</span>
           <span>—</span>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }

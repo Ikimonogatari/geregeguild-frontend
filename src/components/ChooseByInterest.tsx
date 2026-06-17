@@ -4,6 +4,14 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import JourneyCard from "@/components/JourneyCard";
 import { INTERESTS, journeysForInterest, type Interest } from "@/lib/journeys";
+import {
+  DUR,
+  EASE,
+  STAGGER,
+  VIEWPORT,
+  revealVariants,
+  staggerParent,
+} from "@/lib/motion";
 
 type Props = {
   /** When true the section paints its own heading + intro (home page). */
@@ -24,39 +32,53 @@ export default function ChooseByInterest({ withHeading = true }: Props) {
 
       <div className="max-w-6xl mx-auto relative z-10">
         {withHeading && (
-          <div className="text-center mb-14 max-w-3xl mx-auto">
+          <motion.div
+            variants={staggerParent(STAGGER.base, STAGGER.base)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT}
+            className="text-center mb-14 max-w-3xl mx-auto"
+          >
             <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+              variants={revealVariants("rise", DUR.base)}
               className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5"
             >
               Choose by Interest
             </motion.p>
             <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
+              variants={revealVariants("blur", DUR.slow)}
               className="font-heading text-4xl md:text-6xl uppercase tracking-[0.08em] text-foreground ember-text-glow"
             >
               Tell us what you came for
             </motion.h2>
-            <div className="ink-divider mt-10 mb-10 max-w-md mx-auto" />
-            <p className="text-foreground/85 text-[18px] font-serif italic leading-relaxed">
+            <motion.div
+              variants={revealVariants("wipe", DUR.base)}
+              className="ink-divider mt-10 mb-10 max-w-md mx-auto"
+            />
+            <motion.p
+              variants={revealVariants("rise", DUR.base)}
+              className="text-foreground/85 text-[18px] font-serif italic leading-relaxed"
+            >
               Then we match the route, vehicle, host and guide around you. Pick an
               intent — the roads that answer it will appear.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
         )}
 
-        {/* Intent chips */}
-        <div className="flex flex-wrap justify-center gap-3">
+        {/* Intent chips — cascade in as one beat. */}
+        <motion.div
+          variants={staggerParent(STAGGER.tight)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="flex flex-wrap justify-center gap-3"
+        >
           {INTERESTS.map((interest) => {
             const active = selected?.id === interest.id;
             return (
-              <button
+              <motion.button
                 key={interest.id}
+                variants={revealVariants("rise", DUR.base)}
                 type="button"
                 onClick={() => setSelected(active ? null : interest)}
                 className={[
@@ -68,10 +90,10 @@ export default function ChooseByInterest({ withHeading = true }: Props) {
               >
                 <span className="text-base leading-none">{interest.sigil}</span>
                 {interest.label}
-              </button>
+              </motion.button>
             );
           })}
-        </div>
+        </motion.div>
 
         {/* Matched roads */}
         <AnimatePresence mode="wait">
@@ -81,7 +103,7 @@ export default function ChooseByInterest({ withHeading = true }: Props) {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 12 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: DUR.base, ease: EASE }}
               className="mt-14"
             >
               <p className="text-center font-accent italic text-muted text-[13px] tracking-[0.25em] uppercase mb-10">

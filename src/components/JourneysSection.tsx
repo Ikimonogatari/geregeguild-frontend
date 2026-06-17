@@ -5,6 +5,14 @@ import { motion } from "framer-motion";
 import JourneyCard from "@/components/JourneyCard";
 import QuillDivider from "@/components/QuillDivider";
 import { JOURNEYS } from "@/lib/journeys";
+import {
+  DUR,
+  EASE,
+  STAGGER,
+  VIEWPORT,
+  revealVariants,
+  staggerParent,
+} from "@/lib/motion";
 
 export default function JourneysSection() {
   // Tease a spread across categories; the custom charter lives on the full page.
@@ -22,48 +30,50 @@ export default function JourneysSection() {
         }}
       />
       <div className="relative max-w-7xl mx-auto">
-        <div className="text-center mb-16 max-w-3xl mx-auto">
+        {/* Heading group reveals as one orchestrated beat. */}
+        <motion.div
+          variants={staggerParent(STAGGER.base, STAGGER.base)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="text-center mb-16 max-w-3xl mx-auto"
+        >
           <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            variants={revealVariants("rise", DUR.base)}
             className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5 inline-flex items-center gap-4"
           >
             <motion.span
-              initial={{ scaleX: 0, opacity: 0 }}
-              whileInView={{ scaleX: 1, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.9, delay: 0.1, ease: [0.2, 0.7, 0.2, 1] }}
+              variants={revealVariants("wipe", DUR.base)}
               style={{ transformOrigin: "right" }}
               className="block w-10 h-px bg-accent/60"
             />
             <span>The Roads</span>
             <motion.span
-              initial={{ scaleX: 0, opacity: 0 }}
-              whileInView={{ scaleX: 1, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.9, delay: 0.1, ease: [0.2, 0.7, 0.2, 1] }}
+              variants={revealVariants("wipe", DUR.base)}
               style={{ transformOrigin: "left" }}
               className="block w-10 h-px bg-accent/60"
             />
           </motion.p>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            variants={revealVariants("blur", DUR.slow)}
             className="font-heading text-4xl md:text-6xl uppercase tracking-[0.08em] text-foreground ember-text-glow leading-tight"
           >
             First choose the Mongolia<br className="hidden sm:block" /> you want to meet
           </motion.h2>
-          <div className="flex justify-center mt-10 mb-10">
+          <motion.div
+            variants={revealVariants("fade", DUR.base)}
+            className="flex justify-center mt-10 mb-10"
+          >
             <QuillDivider width={360} />
-          </div>
-          <p className="text-foreground/85 text-[18px] font-serif italic leading-relaxed">
+          </motion.div>
+          <motion.p
+            variants={revealVariants("rise", DUR.base)}
+            className="text-foreground/85 text-[18px] font-serif italic leading-relaxed"
+          >
             Every charter is built from the road upward. Choose a journey, and we
             match the route, the vehicle, the host and the guide around you.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {featured.map((j, i) => (
@@ -72,10 +82,11 @@ export default function JourneysSection() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.2 }}
+          variants={revealVariants("rise", DUR.slow)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          transition={{ duration: DUR.slow, ease: EASE }}
           className="mt-16 text-center flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
           <Link

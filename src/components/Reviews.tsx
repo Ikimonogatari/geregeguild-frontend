@@ -1,6 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import {
+  DUR,
+  STAGGER,
+  VIEWPORT,
+  revealVariants,
+  staggerParent,
+} from "@/lib/motion";
 
 const tales = [
   {
@@ -26,30 +33,55 @@ export default function Reviews() {
       className="relative py-16 md:py-24 px-6 overflow-hidden bg-background"
     >
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-10">
+        <motion.div
+          variants={staggerParent(STAGGER.base, STAGGER.base)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-10"
+        >
           <div className="max-w-xl">
-            <p className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5">
+            <motion.p
+              variants={revealVariants("rise", DUR.base)}
+              className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5"
+            >
               Chronicles
-            </p>
-            <h2 className="font-heading text-4xl md:text-6xl uppercase tracking-[0.08em] leading-[1.05] text-foreground ember-text-glow">
+            </motion.p>
+            <motion.h2
+              variants={revealVariants("blur", DUR.slow)}
+              className="font-heading text-4xl md:text-6xl uppercase tracking-[0.08em] leading-[1.05] text-foreground ember-text-glow"
+            >
               Tales from the road
-            </h2>
+            </motion.h2>
           </div>
-          <p className="text-muted text-[17px] max-w-sm font-serif italic leading-relaxed">
+          <motion.p
+            variants={revealVariants("rise", DUR.base)}
+            className="text-muted text-[17px] max-w-sm font-serif italic leading-relaxed"
+          >
             Honest words from patrons who have ridden with the Guild. Each chronicle was sent by raven, unedited.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        <div className="ink-divider mb-14" />
+        <motion.div
+          variants={revealVariants("wipe", DUR.base)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="ink-divider mb-14"
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {tales.map((t, idx) => (
+        {/* Tales — staggered as one beat. */}
+        <motion.div
+          variants={staggerParent(STAGGER.base)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="grid grid-cols-1 md:grid-cols-2 gap-10"
+        >
+          {tales.map((t) => (
             <motion.article
               key={t.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: idx * 0.12 }}
+              variants={revealVariants("rise", DUR.slow)}
               className="bg-surface/50 border border-highlight/30 p-8 md:p-12 ember-glow"
             >
               <div className="flex items-center gap-6 mb-8">
@@ -74,7 +106,7 @@ export default function Reviews() {
               </p>
             </motion.article>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
