@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -114,6 +114,16 @@ const PARTY_ICON: Record<string, LucideIcon> = {
 };
 
 export default function DiscoverPage() {
+  // Next 16 requires anything using useSearchParams() to sit inside a
+  // Suspense boundary, otherwise the page can't be prerendered.
+  return (
+    <Suspense fallback={null}>
+      <DiscoverPageInner />
+    </Suspense>
+  );
+}
+
+function DiscoverPageInner() {
   const params = useSearchParams();
 
   const [intent, setIntent] = useState<IntentDraft>(() =>
