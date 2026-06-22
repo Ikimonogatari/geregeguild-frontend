@@ -91,3 +91,84 @@ export async function fetchGuide(slug: string): Promise<Guide | undefined> {
   }
   return getGuideLocal(slug);
 }
+
+/* ─── Charters (customer side) ─── */
+
+export type CharterTrack = {
+  id: string;
+  status: "pending" | "contacted" | "confirmed" | "cancelled" | "completed";
+  createdAt: string;
+  updatedAt: string;
+  journey: { slug: string; title: string; region: string };
+  guide?: { slug: string; name: string; level: string } | null;
+  travelers: number;
+  contactName: string;
+  contactEmail: string;
+  contactDates: string;
+  estimatedTotal: number;
+  currency: string;
+  adminNotes: string;
+};
+
+export async function trackCharter(id: string): Promise<CharterTrack | null> {
+  try {
+    const res = await fetch(`${BASE}/api/charters/track/${id}`);
+    if (!res.ok) return null;
+    return (await res.json()) as CharterTrack;
+  } catch {
+    return null;
+  }
+}
+
+export type CustomerNotification = {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  link: string;
+  createdAt: string;
+  readAt: string | null;
+};
+
+export async function fetchCustomerNotifications(
+  email: string,
+): Promise<CustomerNotification[]> {
+  if (!email) return [];
+  try {
+    const res = await fetch(
+      `${BASE}/api/notifications/customer?email=${encodeURIComponent(email)}`,
+    );
+    if (!res.ok) return [];
+    return (await res.json()) as CustomerNotification[];
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchCustomerUnreadCount(
+  email: string,
+): Promise<number> {
+  if (!email) return 0;
+  try {
+    const res = await fetch(
+      `${BASE}/api/notifications/customer/unread-count?email=${encodeURIComponent(email)}`,
+    );
+    if (!res.ok) return 0;
+    const data = (await res.json()) as { count: number };
+    return data.count;
+  } catch {
+    return 0;
+  }
+}
+
+export async function markCustomerNotificationsRead(email: string) {
+  if (!email) return;
+  try {
+    await fetch(
+      `${BASE}/api/notifications/customer/read-all?email=${encodeURIComponent(email)}`,
+      { method: "POST" },
+    );
+  } catch {
+    /* ignore */
+  }
+}

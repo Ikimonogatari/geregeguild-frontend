@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useLenis } from "lenis/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, Star, Minus, Plus } from "lucide-react";
 import GuideRankBadge from "@/components/GuideRankBadge";
@@ -30,6 +31,7 @@ import {
   saveDraft,
 } from "@/lib/draft";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
+import { rememberCharter } from "@/lib/charter-tracking";
 
 type Props = { journey: Journey };
 
@@ -76,6 +78,38 @@ export default function CharterWizard({ journey }: Props) {
 
   const [step, setStep] = useState(0);
   const [sent, setSent] = useState(false);
+  const [sentId, setSentId] = useState<string | null>(null);
+
+  // When the step changes, snap the wizard's top under the fixed navbar.
+  // Without this the user sits at the bottom of the previous step (where
+  // the Continue button is) and the new step's heading is off-screen,
+  // making it feel like the page is "stuck" near the footer.
+  //
+  // The scroll is gated behind a "user has interacted" flag rather than
+  // a didMount check, because `useLenis()` returns undefined on first
+  // render and a defined instance later — if we keyed on `lenis` the
+  // effect would fire on the page load once Lenis hydrated, yanking
+  // the user down on arrival.
+  const wizardRef = useRef<HTMLDivElement | null>(null);
+  const lenis = useLenis();
+  const lenisRef = useRef(lenis);
+  useEffect(() => {
+    lenisRef.current = lenis;
+  }, [lenis]);
+  const interactedRef = useRef(false);
+  useEffect(() => {
+    if (!interactedRef.current) return;
+    const node = wizardRef.current;
+    if (!node) return;
+    const offset = -110;
+    const l = lenisRef.current;
+    if (l) {
+      l.scrollTo(node, { offset, duration: 0.7 });
+    } else {
+      const top = node.getBoundingClientRect().top + window.scrollY + offset;
+      window.scrollTo({ top, behavior: "smooth" });
+    }
+  }, [step, sent]);
 
   // View-details modals (vehicle / guide). Object kept after close so
   // exit animations still render it.
@@ -101,47 +135,63 @@ export default function CharterWizard({ journey }: Props) {
     if (i < 0 || i >= STEPS.length) return;
     // Don't allow jumping past Guide without one chosen
     if (i >= 2 && !guide) return;
+    interactedRef.current = true;
     setStep(i);
   }
 
-  function submit() {
-    // No backend yet — assemble a raven (mailto). Phase D wires real payment.
-    const subject = `Charter — ${journey.title}`;
-    const mountLabel =
-      draft.mount === "None" ? "—" : draft.mount;
-    const dietLabel =
-      draft.diet === "Other" && draft.dietNotes.trim()
-        ? `Other — ${draft.dietNotes.trim()}`
-        : draft.diet;
-    const body = [
-      `Journey: ${journey.title} (${journey.region})`,
-      `Vehicle: ${vehicle?.name ?? "—"}`,
-      `Guide: ${guide ? `${guide.name} · ${guide.level}${draft.guideRole === "Trainee" ? " (trainee)" : ""}` : "—"}`,
-      `Travelers: ${draft.travelers}`,
-      `Accommodation: ${draft.accommodation === "Private" ? "Private sleeping arrangements" : "Group ger / shared camp"}`,
-      `Diet: ${dietLabel}${draft.designatedCook ? " (designated cook)" : ""}`,
-      `Mount: ${mountLabel}`,
-      `Dates: ${draft.contact.dates || "—"}`,
-      "",
-      draft.specialRequirements
-        ? `Special requirements:\n${draft.specialRequirements}`
-        : "",
-      "",
-      `— ${draft.contact.name}`,
-    ]
-      .filter((line) => line !== null)
-      .join("\n");
-    if (typeof window !== "undefined") {
-      window.location.href = `mailto:hello@geregeguild.mn?subject=${encodeURIComponent(
-        subject
-      )}&body=${encodeURIComponent(body)}`;
+  async function submit() {
+    // Backend-backed submission. Falls back to mailto if the API is unreachable
+    // so the user is never stranded mid-form.
+    const payload = {
+      journeySlug: journey.slug,
+      vehicleId: draft.vehicleId ?? null,
+      guideSlug: draft.guideSlug ?? null,
+      guideRole: draft.guideRole,
+      travelers: draft.travelers,
+      accommodation: draft.accommodation,
+      diet: draft.diet,
+      dietNotes: draft.dietNotes,
+      designatedCook: draft.designatedCook,
+      mount: draft.mount,
+      specialRequirements: draft.specialRequirements,
+      contactName: draft.contact.name,
+      contactEmail: draft.contact.email,
+      contactPhone: "",
+      contactDates: draft.contact.dates ?? "",
+    };
+    const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    try {
+      const res = await fetch(`${base}/api/charters`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`Submit failed (${res.status})`);
+      const created = (await res.json()) as { id: string };
+      // Pin the charter to localStorage so the user can track it without an account.
+      rememberCharter(created.id, journey.title, draft.contact.email);
+      setSentId(created.id);
+    } catch {
+      // Network-level fallback: open the user's mail client so the inquiry
+      // still reaches the team. Preserves the prior behaviour.
+      if (typeof window !== "undefined") {
+        const subject = `Charter — ${journey.title}`;
+        const body =
+          `Journey: ${journey.title} (${journey.region})\n` +
+          `Travelers: ${draft.travelers}\n` +
+          `Dates: ${draft.contact.dates || "—"}\n\n— ${draft.contact.name}`;
+        window.location.href = `mailto:hello@geregeguild.mn?subject=${encodeURIComponent(
+          subject,
+        )}&body=${encodeURIComponent(body)}`;
+      }
     }
     clearDraft(journey.slug);
+    interactedRef.current = true;
     setSent(true);
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div ref={wizardRef} className="max-w-5xl mx-auto scroll-mt-28">
       {/* Progress */}
       <div className="flex items-center justify-center gap-2 sm:gap-4 mb-14">
         {STEPS.map((label, i) => {
@@ -442,6 +492,7 @@ export default function CharterWizard({ journey }: Props) {
               onPatch={patchDraft}
               onSubmit={submit}
               sent={sent}
+              sentId={sentId}
             />
           </motion.div>
         )}
@@ -1161,6 +1212,7 @@ function SummaryStep({
   onPatch,
   onSubmit,
   sent,
+  sentId,
 }: {
   journey: Journey;
   vehicle: Vehicle | null;
@@ -1170,6 +1222,7 @@ function SummaryStep({
   onPatch: (patch: Partial<JourneyDraft>) => void;
   onSubmit: () => void;
   sent: boolean;
+  sentId: string | null;
 }) {
   if (sent) {
     return (
@@ -1179,16 +1232,31 @@ function SummaryStep({
           The raven is away
         </h3>
         <p className="mt-5 text-foreground/85 font-serif italic text-[18px] leading-relaxed">
-          Your charter request is drafted to the Guild. A guide — not a sales
-          desk — will write back, with a charted map and a written charter,
-          before anything is owed.
+          Your charter request reached the Guild. A guide — not a sales desk —
+          will write back. You can watch the road from your reference page,
+          and the bell at the top will light when there is news.
         </p>
-        <Link
-          href="/journeys"
-          className="inline-block mt-10 px-10 py-4 border border-highlight/50 hover:border-accent transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-muted hover:text-foreground"
-        >
-          Explore other roads
-        </Link>
+        <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <Link
+            href={sentId ? `/charter/track/${sentId}` : "/charter/me"}
+            className="inline-block px-10 py-4 border border-accent bg-accent/10 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
+          >
+            Track my charter
+          </Link>
+          <Link
+            href="/journeys"
+            className="inline-block px-10 py-4 border border-highlight/50 hover:border-accent transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-muted hover:text-foreground"
+          >
+            Explore other roads
+          </Link>
+        </div>
+        {sentId && (
+          <p className="mt-10 font-accent italic text-muted text-[12px] tracking-[0.2em] uppercase">
+            Reference · {sentId}
+            <br />
+            Keep this id if you need to reach the charter from another device.
+          </p>
+        )}
       </div>
     );
   }

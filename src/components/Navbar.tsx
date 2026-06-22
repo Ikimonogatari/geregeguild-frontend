@@ -8,6 +8,7 @@ import { EASE, DUR } from "@/lib/motion";
 import { Menu, X, User as UserIcon } from "lucide-react";
 import { useAuth } from "./Providers";
 import { AuthModal } from "./AuthModal";
+import CustomerBell from "./CustomerBell";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -114,6 +115,8 @@ export default function Navbar() {
                   Sign the Register
                 </button>
               )}
+
+              <CustomerBell />
 
               <Link
                 href="/journeys"

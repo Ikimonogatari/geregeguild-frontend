@@ -123,10 +123,10 @@ The product is **journey-first** ("every charter is built from the road upward")
 4. **`/charter/[journey]`** → **`CharterWizard`** — the conversion funnel, in 3 steps:
    - **Vehicle** — pick from the journey's `vehicleOptions` (`VEHICLES`), default = `requiredVehicle`.
    - **Guide** — guides are ranked/sorted by `guidesForJourney()` (fits category + meets rank); a guide who doesn't meet `recommendedRank` is shown but flagged.
-   - **Charter** — a "Send a Raven" inquiry form (name/email/dates/party/notes). **The form is local state only — there is no submit endpoint wired yet.**
+   - **Charter** — a "Send a Raven" inquiry form (name/email/dates/party/notes). Submits to `POST /api/charters`; falls back to `mailto:` if the API is unreachable. A successful submit creates a broadcast admin notification.
 5. **`/guides`** & **`/guides/[slug]`** — the roster as collectible cards + per-guide lore. Still present and linked, but secondary to journeys now.
 
-All journey/guide content is **hardcoded in `src/lib/`** — there is **no backend for the charter product**. Prices are placeholders (`lib/format.ts`).
+All journey/guide content is now **served by the backend** (DB-backed, see `geregeguild-backend/CLAUDE.md`). The `src/lib/journeys.ts` and `src/lib/guides.ts` files remain as the type source AND as offline fallbacks — `src/lib/api.ts` transparently falls back to them if the API is unreachable. Prices come from the backend `Journey` rows and the `/api/pricing` settings (currency, tax, fee, deposit). The admin dashboard at :3001 owns content edits.
 
 ## Domain model (in `src/lib/`)
 - **Rank ladder** (shared by guides *and* journey difficulty): `Apprentice → Novice → Master → Guildmaster` (`LEVEL_ORDER`). Only one Guildmaster exists (Vanya).
@@ -213,9 +213,10 @@ These are real and worth knowing before you edit:
 1. **Brief vs. code drift** — the design brief describes a guides-first "Choose Your Guide" funnel; the live product is journey-first ("from the road upward"). The brief's *aesthetic* rules are still authoritative; its *flow* description is stale.
 2. **Two design eras coexist** — new parchment/Cinzel charter UI vs. legacy `brand-charcoal`/`brand-gold` game UI (`/map`, `/profile`, `AuthModal`).
 3. **Undefined font classes** — `profile/page.tsx`, `AuthModal.tsx`, and `InteractiveMap.tsx` use `font-bricolage` / `font-space-grotesk`, which are **not defined** in the current `@theme` — those screens fall back to default fonts.
-4. **Charter inquiry form is inert** — `CharterWizard`'s "Send a Raven" form holds local state but has no submit endpoint.
-5. **Charter data is hardcoded** — guides/journeys live in `src/lib/`, no API. Prices are placeholders.
+4. ~~**Charter inquiry form is inert**~~ — RESOLVED: submits to `POST /api/charters`; mailto remains as a fallback.
+5. ~~**Charter data is hardcoded**~~ — RESOLVED: journeys/guides served from the backend DB; `src/lib/{journeys,guides}.ts` are now the type + offline-fallback source.
 6. **Map page bg** uses `bg-brand-charcoal` (an alias of `background`) — fine, but mixes vocabularies.
+7. ~~**User notifications not surfaced in public UI**~~ — RESOLVED: `<CustomerBell />` appears in the navbar after a charter has been submitted on the device; polls `/api/notifications/customer?email=…`. `/charter/me` lists every charter submitted on this device; `/charter/track/:id` is the per-charter status page.
 
 When fixing in these areas, flag the inconsistency rather than silently normalising unrelated code.
 
