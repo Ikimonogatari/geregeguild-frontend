@@ -6,17 +6,18 @@ import GuideRankBadge from "@/components/GuideRankBadge";
 import JourneyMap from "@/components/JourneyMap";
 import {
   JOURNEYS,
-  getJourney,
-  getVehicle,
   guidesForJourney,
   guideMeetsRank,
   CATEGORY_SIGIL,
   DIFFICULTY_BLURB,
   GUIDE_MEDAL,
 } from "@/lib/journeys";
+import { fetchJourney, fetchVehicle, fetchGuides } from "@/lib/api";
 import { formatPriceRange } from "@/lib/format";
 
 export function generateStaticParams() {
+  // Build-time param list: keep using the local lib so static generation
+  // doesn't depend on the backend being reachable during `next build`.
   return JOURNEYS.map((j) => ({ slug: j.slug }));
 }
 
@@ -26,16 +27,23 @@ export default async function JourneyPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const journey = getJourney(slug);
+  const journey = await fetchJourney(slug);
   if (!journey) notFound();
 
   const isCustom = journey.category === "Custom";
-  const requiredVehicle = getVehicle(journey.requiredVehicle);
-  const otherVehicles = journey.vehicleOptions
-    .filter((id) => id !== journey.requiredVehicle)
-    .map(getVehicle)
-    .filter(Boolean);
-  const guides = guidesForJourney(journey).filter((g) => guideMeetsRank(g, journey));
+  const [requiredVehicle, otherVehiclesRaw, allGuides] = await Promise.all([
+    fetchVehicle(journey.requiredVehicle),
+    Promise.all(
+      journey.vehicleOptions
+        .filter((id) => id !== journey.requiredVehicle)
+        .map((id) => fetchVehicle(id)),
+    ),
+    fetchGuides(),
+  ]);
+  const otherVehicles = otherVehiclesRaw.filter(Boolean);
+  const guides = guidesForJourney(journey, allGuides).filter((g) =>
+    guideMeetsRank(g, journey),
+  );
   const medal = GUIDE_MEDAL[journey.recommendedRank];
 
   return (

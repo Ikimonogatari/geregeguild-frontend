@@ -4,12 +4,14 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
   GUIDES,
-  getGuide,
   SPECIALIZATION_BLURB,
   SPECIALIZATION_SIGIL,
 } from "@/lib/guides";
+import { fetchGuide } from "@/lib/api";
 
 export function generateStaticParams() {
+  // Build-time param list: keep using the local lib so static generation
+  // doesn't depend on the backend being reachable during `next build`.
   return GUIDES.map((g) => ({ slug: g.slug }));
 }
 
@@ -19,7 +21,7 @@ export default async function GuidePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const guide = getGuide(slug);
+  const guide = await fetchGuide(slug);
   if (!guide) notFound();
 
   return (

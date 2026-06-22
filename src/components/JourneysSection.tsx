@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import JourneyCard from "@/components/JourneyCard";
 import QuillDivider from "@/components/QuillDivider";
-import { JOURNEYS } from "@/lib/journeys";
+import { type Journey } from "@/lib/journeys";
+import { fetchJourneys } from "@/lib/api";
 import {
   DUR,
   STAGGER,
@@ -21,7 +23,17 @@ import {
    ──────────────────────────────────────────────────────────── */
 
 export default function JourneysSection() {
-  const featured = JOURNEYS.filter((j) => j.category !== "Custom").slice(0, 6);
+  const [journeys, setJourneys] = useState<Journey[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchJourneys().then((data) => {
+      if (!cancelled) setJourneys(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const featured = journeys.filter((j) => j.category !== "Custom").slice(0, 6);
 
   return (
     <section

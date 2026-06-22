@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import GuideCard from "@/components/GuideCard";
-import { GUIDES } from "@/lib/guides";
+import { type Guide } from "@/lib/guides";
+import { fetchGuides } from "@/lib/api";
 import {
   DUR,
   STAGGER,
@@ -13,12 +15,23 @@ import {
 } from "@/lib/motion";
 
 export default function QuestPreview() {
+  const [guides, setGuides] = useState<Guide[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchGuides().then((data) => {
+      if (!cancelled) setGuides(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Tease: Guildmaster + one Master + one Apprentice
   const featured = [
-    GUIDES.find((g) => g.level === "Guildmaster"),
-    GUIDES.find((g) => g.level === "Master"),
-    GUIDES.find((g) => g.level === "Apprentice"),
-  ].filter(Boolean) as typeof GUIDES;
+    guides.find((g) => g.level === "Guildmaster"),
+    guides.find((g) => g.level === "Master"),
+    guides.find((g) => g.level === "Apprentice"),
+  ].filter((g): g is Guide => Boolean(g));
 
   return (
     <section

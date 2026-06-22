@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,9 +33,10 @@ import Footer from "@/components/Footer";
 import JourneyCard from "@/components/JourneyCard";
 import {
   INTERESTS,
-  JOURNEYS,
   type Interest,
+  type Journey,
 } from "@/lib/journeys";
+import { fetchJourneys } from "@/lib/api";
 import {
   PACE_OPTIONS,
   PARTY_OPTIONS,
@@ -600,10 +601,21 @@ function ResultsStep({
   intent: IntentDraft;
   onEdit: () => void;
 }) {
+  const [journeys, setJourneys] = useState<Journey[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchJourneys().then((data) => {
+      if (!cancelled) setJourneys(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Rank every journey; bucket into tiers for the UI.
   const ranked = useMemo<JourneyMatch[]>(
-    () => rankJourneys(JOURNEYS, intent, -20),
-    [intent],
+    () => rankJourneys(journeys, intent, -20),
+    [intent, journeys],
   );
   const strong = ranked.filter((m) => m.tier === "strong");
   const good = ranked.filter((m) => m.tier === "good");

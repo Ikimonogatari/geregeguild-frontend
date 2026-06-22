@@ -3,9 +3,11 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CharterWizard from "@/components/CharterWizard";
-import { JOURNEYS, getJourney, CATEGORY_SIGIL } from "@/lib/journeys";
+import { JOURNEYS, CATEGORY_SIGIL } from "@/lib/journeys";
+import { fetchJourney } from "@/lib/api";
 
 export function generateStaticParams() {
+  // Build-time param list — local lib so `next build` doesn't depend on the API.
   return JOURNEYS.map((j) => ({ journey: j.slug }));
 }
 
@@ -15,7 +17,7 @@ export default async function CharterPage({
   params: Promise<{ journey: string }>;
 }) {
   const { journey: slug } = await params;
-  const journey = getJourney(slug);
+  const journey = await fetchJourney(slug);
   if (!journey) notFound();
 
   return (

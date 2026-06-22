@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
@@ -8,13 +8,14 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GuideCard from "@/components/GuideCard";
 import {
-  GUIDES,
   LEVELS,
   SPECIALIZATIONS,
   LEVEL_ORDER,
+  type Guide,
   type GuideLevel,
   type Specialization,
 } from "@/lib/guides";
+import { fetchGuides } from "@/lib/api";
 import {
   DUR,
   EASE,
@@ -27,20 +28,31 @@ import {
 export default function GuidesPage() {
   const [spec, setSpec] = useState<Specialization | "All">("All");
   const [minLevel, setMinLevel] = useState<GuideLevel | "Any">("Any");
+  const [guides, setGuides] = useState<Guide[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchGuides().then((data) => {
+      if (!cancelled) setGuides(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Featured Guildmaster — shown at the top regardless of filters.
-  const guildmaster = GUIDES.find((g) => g.level === "Guildmaster");
+  const guildmaster = guides.find((g) => g.level === "Guildmaster");
 
   // Roster excludes the Guildmaster (they have their own spotlight).
   const roster = useMemo(
     () =>
-      GUIDES.filter((g) => g.level !== "Guildmaster").filter((g) => {
+      guides.filter((g) => g.level !== "Guildmaster").filter((g) => {
         if (spec !== "All" && g.specialization !== spec) return false;
         if (minLevel !== "Any" && LEVEL_ORDER[g.level] < LEVEL_ORDER[minLevel])
           return false;
         return true;
       }),
-    [spec, minLevel],
+    [spec, minLevel, guides],
   );
 
   return (
@@ -143,7 +155,7 @@ export default function GuidesPage() {
 }
 
 /* ─── Featured Guildmaster — large horizontal portrait spotlight ─── */
-function GuildmasterSpotlight({ guide }: { guide: (typeof GUIDES)[number] }) {
+function GuildmasterSpotlight({ guide }: { guide: Guide }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 32 }}

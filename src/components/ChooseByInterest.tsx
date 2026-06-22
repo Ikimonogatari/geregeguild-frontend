@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import JourneyCard from "@/components/JourneyCard";
-import { INTERESTS, journeysForInterest, type Interest } from "@/lib/journeys";
+import {
+  INTERESTS,
+  journeysForInterest,
+  type Interest,
+  type Journey,
+} from "@/lib/journeys";
+import { fetchJourneys } from "@/lib/api";
 import {
   DUR,
   EASE,
@@ -20,7 +26,17 @@ type Props = {
 
 export default function ChooseByInterest({ withHeading = true }: Props) {
   const [selected, setSelected] = useState<Interest | null>(null);
-  const matches = selected ? journeysForInterest(selected) : [];
+  const [journeys, setJourneys] = useState<Journey[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchJourneys().then((data) => {
+      if (!cancelled) setJourneys(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const matches = selected ? journeysForInterest(selected, journeys) : [];
 
   return (
     <section id="interest" className="relative py-16 md:py-24 px-6 overflow-hidden bg-background">

@@ -698,8 +698,8 @@ export function journeysByCategory(category: JourneyCategory | "All"): Journey[]
   return JOURNEYS.filter((j) => j.category === category);
 }
 
-export function journeysForInterest(interest: Interest): Journey[] {
-  return JOURNEYS.filter(
+export function journeysForInterest(interest: Interest, pool: Journey[] = JOURNEYS): Journey[] {
+  return pool.filter(
     (j) => interest.categories.includes(j.category) && j.category !== "Custom"
   );
 }
@@ -715,10 +715,10 @@ export function guideFitsCategory(guide: Guide, journey: Journey): boolean {
 /** Every guide, sorted so the best-matched (fits the country AND holds the
  *  rank) lead, then those who hold the rank, then the rest. The wizard uses
  *  `guideMeetsRank` to mark guides who cannot yet lead this road. */
-export function guidesForJourney(journey: Journey): Guide[] {
+export function guidesForJourney(journey: Journey, pool: Guide[] = GUIDES): Guide[] {
   const score = (g: Guide) =>
     (guideFitsCategory(g, journey) ? 2 : 0) +
     (guideMeetsRank(g, journey) ? 1 : 0) +
     LEVEL_ORDER[g.level] / 10;
-  return [...GUIDES].sort((a, b) => score(b) - score(a));
+  return [...pool].sort((a, b) => score(b) - score(a));
 }

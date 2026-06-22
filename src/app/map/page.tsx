@@ -6,6 +6,8 @@ import dynamic from "next/dynamic";
 import { ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { colorForIndex, listedJourneys } from "@/lib/journey-display";
+import { type Journey } from "@/lib/journeys";
+import { fetchJourneys } from "@/lib/api";
 
 // Leaflet is browser-only; lazy-load the overview map.
 const JourneysOverviewMap = dynamic(
@@ -15,7 +17,18 @@ const JourneysOverviewMap = dynamic(
 
 export default function MapPage() {
   const [highlightedSlugs, setHighlightedSlugs] = useState<string[]>([]);
-  const journeys = listedJourneys();
+  const [allJourneys, setAllJourneys] = useState<Journey[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchJourneys().then((data) => {
+      if (!cancelled) setAllJourneys(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  // Fallback to local list until the fetch resolves so the page never paints empty.
+  const journeys = allJourneys.length ? allJourneys.filter((j) => j.category !== "Custom") : listedJourneys();
   // Memoised so passing an array prop into the map doesn't change identity
   // on every render — important for Leaflet to avoid spurious work.
   const slugs = useMemo(() => highlightedSlugs, [highlightedSlugs]);
@@ -175,6 +188,7 @@ export default function MapPage() {
             <JourneysOverviewMap
               highlightedSlugs={slugs}
               onHover={setHighlight}
+              journeys={journeys}
             />
           </div>
         </div>

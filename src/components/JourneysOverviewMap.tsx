@@ -70,17 +70,21 @@ type Props = {
   highlightedSlugs: string[];
   /** Callback when the map's own hover changes — sync the page state. */
   onHover?: (slugs: string[]) => void;
+  /** Journeys to render; falls back to the local list if not provided. */
+  journeys?: Journey[];
 };
 
 export default function JourneysOverviewMap({
   highlightedSlugs,
   onHover,
+  journeys,
 }: Props) {
   const router = useRouter();
   const highlighted = useMemo(() => new Set(highlightedSlugs), [highlightedSlugs]);
 
   const routes = useMemo<RouteRender[]>(() => {
-    return listedJourneys().map((j, i) => {
+    const list = journeys && journeys.length > 0 ? journeys : listedJourneys();
+    return list.map((j, i) => {
       const wp = routeForJourney(j.slug);
       return {
         journey: j,
@@ -90,7 +94,7 @@ export default function JourneysOverviewMap({
         index: i,
       };
     });
-  }, []);
+  }, [journeys]);
 
   // Compute the initial fit bounds ONCE per route set — memoised so it
   // doesn't get a fresh array on every render (which would re-trigger

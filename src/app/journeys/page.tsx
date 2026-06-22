@@ -1,24 +1,36 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JourneyCard from "@/components/JourneyCard";
 import {
-  JOURNEYS,
   JOURNEY_CATEGORIES,
   CATEGORY_SIGIL,
+  type Journey,
   type JourneyCategory,
 } from "@/lib/journeys";
+import { fetchJourneys } from "@/lib/api";
 
 export default function JourneysPage() {
   const [category, setCategory] = useState<JourneyCategory | "All">("All");
+  const [journeys, setJourneys] = useState<Journey[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchJourneys().then((data) => {
+      if (!cancelled) setJourneys(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const visible = useMemo(() => {
-    if (category === "All") return JOURNEYS;
-    return JOURNEYS.filter((j) => j.category === category);
-  }, [category]);
+    if (category === "All") return journeys;
+    return journeys.filter((j) => j.category === category);
+  }, [category, journeys]);
 
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
