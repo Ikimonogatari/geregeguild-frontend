@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import type { Journey } from "@/lib/journeys";
 import { CATEGORY_SIGIL } from "@/lib/journeys";
@@ -8,7 +9,6 @@ import dynamic from "next/dynamic";
 import { routeForJourney } from "@/lib/journey-routes";
 import { formatPrice } from "@/lib/format";
 import { EASE, DUR, STAGGER } from "@/lib/motion";
-import JourneyQuickLook from "./JourneyQuickLook";
 
 // Real geography from tile service — mounted only on hover.
 const LeafletMapPlate = dynamic(() => import("./LeafletMapPlate"), {
@@ -22,7 +22,7 @@ type Props = {
 };
 
 export default function JourneyCard({ journey, index = 0 }: Props) {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
   const [hovered, setHovered] = useState(false);
   const isCustom = journey.category === "Custom";
   const route = routeForJourney(journey.slug);
@@ -57,11 +57,10 @@ export default function JourneyCard({ journey, index = 0 }: Props) {
   };
 
   return (
-    <>
       <motion.button
         ref={ref}
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => router.push(`/journeys/${journey.slug}`)}
         onMouseMove={handleMove}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={handleLeave}
@@ -176,14 +175,11 @@ export default function JourneyCard({ journey, index = 0 }: Props) {
               </span>
             </span>
             <span className="font-accent uppercase tracking-[0.25em] text-[11px] text-accent inline-flex items-center gap-1.5 group-hover:translate-x-1 transition-transform duration-300 group-hover:[text-shadow:0_0_10px_rgba(201,146,42,0.7)]">
-              Quick look <span className="inline-block group-hover:translate-x-0.5 transition-transform duration-500">→</span>
+              Read the road <span className="inline-block group-hover:translate-x-0.5 transition-transform duration-500">→</span>
             </span>
           </div>
         </div>
       </motion.button>
-
-      <JourneyQuickLook journey={journey} open={open} onClose={() => setOpen(false)} />
-    </>
   );
 }
 

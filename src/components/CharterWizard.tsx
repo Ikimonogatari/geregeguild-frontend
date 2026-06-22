@@ -593,6 +593,7 @@ function Modal({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6"
           onClick={onClose}
+          data-lenis-prevent
         >
           <div className="absolute inset-0 bg-[#0D0A07]/90 backdrop-blur-sm" />
           <motion.div
@@ -602,6 +603,7 @@ function Modal({
             transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
             onClick={(e) => e.stopPropagation()}
             className={`relative z-10 w-full ${maxW} max-h-[90vh] overflow-y-auto bg-background border border-accent/30 ember-glow`}
+            data-lenis-prevent
           >
             <button
               type="button"

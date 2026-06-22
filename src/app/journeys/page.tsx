@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JourneyCard from "@/components/JourneyCard";
-import ChooseByInterest from "@/components/ChooseByInterest";
 import {
   JOURNEYS,
   JOURNEY_CATEGORIES,
@@ -97,9 +96,6 @@ export default function JourneysPage() {
           </div>
         </div>
       </section>
-
-      {/* Choose by interest */}
-      <ChooseByInterest />
 
       <Footer />
     </main>

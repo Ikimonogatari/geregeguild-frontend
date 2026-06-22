@@ -37,12 +37,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          data-lenis-prevent
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             className="relative w-full max-w-md p-8 bg-brand-charcoal text-white rounded-xl shadow-2xl border border-brand-gold/20"
+            data-lenis-prevent
           >
             <button
               onClick={onClose}

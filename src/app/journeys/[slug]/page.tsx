@@ -3,6 +3,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GuideRankBadge from "@/components/GuideRankBadge";
+import JourneyMap from "@/components/JourneyMap";
 import {
   JOURNEYS,
   getJourney,
@@ -85,9 +86,9 @@ export default async function JourneyPage({
         </section>
       )}
 
-      {/* Overview + map */}
+      {/* Overview + map — map gets the wider column to breathe */}
       <section className="px-6 py-16">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1.3fr_1fr] gap-12 items-start">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_1.4fr] gap-12 items-start">
           <div>
             <p className="font-accent italic text-accent text-[13px] tracking-[0.3em] uppercase mb-5">
               The Road
@@ -118,37 +119,12 @@ export default async function JourneyPage({
             </div>
           </div>
 
-          {/* Map placeholder */}
-          <div className="relative">
-            <div className="relative border border-highlight/40 ember-glow vignette overflow-hidden aspect-[4/5]">
-              <img
-                src={journey.gallery[1] ?? journey.image}
-                alt={`${journey.title} country`}
-                className="w-full h-full object-cover grayscale-[30%] sepia-[40%] brightness-[0.6]"
-              />
-              <div className="absolute inset-0 bg-[#0D0A07]/45" />
-              {/* Ink route line placeholder */}
-              <svg
-                viewBox="0 0 200 250"
-                className="absolute inset-0 w-full h-full"
-                aria-hidden
-              >
-                <path
-                  d="M30 220 C 70 180, 50 140, 100 120 S 150 70, 170 30"
-                  fill="none"
-                  stroke="#C9922A"
-                  strokeWidth="2"
-                  strokeDasharray="5 6"
-                  opacity="0.85"
-                />
-                <circle cx="30" cy="220" r="5" fill="#C9922A" />
-                <circle cx="170" cy="30" r="5" fill="#c0452b" />
-              </svg>
-              <div className="absolute bottom-4 left-4 right-4 text-center">
-                <p className="font-accent italic text-accent text-[11px] tracking-[0.3em] uppercase">
-                  Route map · indicative
-                </p>
-              </div>
+          {/* Real route map — Leaflet tiles + OSRM driving polyline through
+              the journey's actual lat/lon waypoints. Landscape plate so
+              east-west routes (most of Mongolia) read naturally. */}
+          <div className="relative lg:sticky lg:top-28">
+            <div className="relative border border-highlight/40 ember-glow vignette overflow-hidden aspect-[4/3] min-h-[420px] lg:min-h-[560px]">
+              <JourneyMap journey={journey} />
             </div>
             <p className="mt-4 font-accent italic text-muted text-[13px] tracking-[0.15em] text-center">
               A full charted map travels with your written charter.

@@ -27,7 +27,8 @@ const PLACES = {
   frozenLake:     { name: "Frozen Khövsgöl",  lon: 100.50, lat: 51.00 },
 };
 
-/** Routes keyed by Journey.slug — lon/lat polylines. */
+/** Routes keyed by Journey.slug — lon/lat polylines.
+ *  IMPORTANT: keys must match the slugs in src/lib/journeys.ts exactly. */
 export const JOURNEY_ROUTES: Record<string, Waypoint[]> = {
   "khentii-horse-road": [
     PLACES.ulaanbaatar,
@@ -39,41 +40,30 @@ export const JOURNEY_ROUTES: Record<string, Waypoint[]> = {
     PLACES.karakorum,
     PLACES.övörkhangai,
   ],
-  "altai-off-road-traverse": [
+  "altai-offroad-traverse": [
     PLACES.ulaanbaatar,
     PLACES.altai,
     PLACES.bayanÖlgii,
   ],
-  "under-the-eternal-blue-sky": [
+  "shaman-blue-sky": [
     PLACES.ulaanbaatar,
     PLACES.khövsgöl,
-    PLACES.tsagaannuur,
   ],
-  "at-the-ger-of-the-herders": [
+  "ger-of-the-herders": [
     PLACES.ulaanbaatar,
     PLACES.arkhangai,
   ],
-  "the-gobi-of-the-singing-sands": [
+  "gobi-singing-sands": [
     PLACES.ulaanbaatar,
     PLACES.khongor,
     PLACES.yolyn,
   ],
-  "taiga-of-the-reindeer-people": [
+  "taiga-of-the-reindeer": [
     PLACES.ulaanbaatar,
     PLACES.khövsgöl,
     PLACES.tsagaannuur,
   ],
-  "winter-of-the-frozen-lake": [
-    PLACES.ulaanbaatar,
-    PLACES.khövsgöl,
-    PLACES.frozenLake,
-  ],
-  "the-eagle-festival-road": [
-    PLACES.ulaanbaatar,
-    PLACES.altai,
-    PLACES.bayanÖlgii,
-  ],
-  "the-imperial-road": [
+  "imperial-road": [
     PLACES.ulaanbaatar,
     PLACES.karakorum,
     PLACES.övörkhangai,
