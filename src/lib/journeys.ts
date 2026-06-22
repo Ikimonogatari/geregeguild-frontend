@@ -115,6 +115,107 @@ export const MEDAL_LADDER: { level: GuideLevel; medal: Medal }[] = (
 ).map((level) => ({ level, medal: GUIDE_MEDAL[level] }));
 
 /* ────────────────────────────────────────────────────────────
+   Accommodation, Diet, Mount — charter add-ons (Phase A).
+   Pricing impact is deferred to Phase C (pricing engine); for
+   now we surface the choice in the wizard + summary only.
+   ──────────────────────────────────────────────────────────── */
+
+export type AccommodationStyle = "Group" | "Private";
+
+export const ACCOMMODATION_OPTIONS: {
+  id: AccommodationStyle;
+  label: string;
+  blurb: string;
+  feeHint: string;
+}[] = [
+  {
+    id: "Group",
+    label: "Group ger / shared camp",
+    blurb:
+      "The Guild's default — felt tents and bedrolls, shared with the party. Closer to the road.",
+    feeHint: "Included",
+  },
+  {
+    id: "Private",
+    label: "Private sleeping arrangements",
+    blurb:
+      "A separate ger or private room where the road allows. Quieter, but adds to the charter cost.",
+    feeHint: "+ Additional fee",
+  },
+];
+
+export type DietaryPreference = "Standard" | "Vegetarian" | "Vegan" | "Other";
+
+export const DIETARY_OPTIONS: { id: DietaryPreference; label: string; sigil: string }[] = [
+  { id: "Standard", label: "Standard (camp cooking)", sigil: "☉" },
+  { id: "Vegetarian", label: "Vegetarian", sigil: "✿" },
+  { id: "Vegan", label: "Vegan", sigil: "✤" },
+  { id: "Other", label: "Other / specific requirements", sigil: "✦" },
+];
+
+export type MountId = "None" | "Horse" | "Yak";
+
+export type MountOption = {
+  id: MountId;
+  label: string;
+  sigil: string;
+  blurb: string;
+  /** journey categories where this mount is offered. None = always. */
+  availableFor: JourneyCategory[] | "any";
+  /** region keywords; mount is offered only if the journey's region
+   *  mentions one of these. Empty array = no extra region filter. */
+  regionKeywords: string[];
+};
+
+export const MOUNT_OPTIONS: MountOption[] = [
+  {
+    id: "None",
+    label: "No mount — ride the route as set",
+    sigil: "—",
+    blurb: "Keep the charter as the road describes it.",
+    availableFor: "any",
+    regionKeywords: [],
+  },
+  {
+    id: "Horse",
+    label: "Horse",
+    sigil: "♞",
+    blurb:
+      "Saddle horses are the country's first transport. Available on most roads outside the deep Gobi.",
+    availableFor: [
+      "Horseback",
+      "Nomadic Family Stay",
+      "Spiritual",
+      "Historical & Cultural",
+      "Custom",
+    ],
+    regionKeywords: [],
+  },
+  {
+    id: "Yak",
+    label: "Yak",
+    sigil: "Ψ",
+    blurb:
+      "High-altitude pack animal. Available only where the herders keep them — primarily Arkhangai.",
+    availableFor: "any",
+    regionKeywords: ["arkhangai", "khangai", "khövsgöl"],
+  },
+];
+
+/** Filter mount options to those available for the given journey. */
+export function mountsForJourney(journey: Journey): MountOption[] {
+  const region = journey.region.toLowerCase();
+  return MOUNT_OPTIONS.filter((m) => {
+    if (m.id === "None") return true;
+    const categoryOk =
+      m.availableFor === "any" || m.availableFor.includes(journey.category);
+    if (!categoryOk) return false;
+    if (m.regionKeywords.length === 0) return true;
+    return m.regionKeywords.some((kw) => region.includes(kw));
+  });
+}
+
+/* ────────────────────────────────────────────────────────────
    Vehicles — chosen after the road, never before.
    ──────────────────────────────────────────────────────────── */
 

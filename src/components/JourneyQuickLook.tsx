@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Journey } from "@/lib/journeys";
 import { CATEGORY_SIGIL, getVehicle } from "@/lib/journeys";
 import { formatPriceRange } from "@/lib/format";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 type Props = {
   journey: Journey;
@@ -19,17 +20,16 @@ export default function JourneyQuickLook({ journey, open, onClose }: Props) {
   const isCustom = journey.category === "Custom";
   const vehicle = getVehicle(journey.requiredVehicle);
 
-  // Lock scroll + close on Escape while the modal is open.
+  // Lock the background page scroll (incl. Lenis) while the modal is open.
+  useLockBodyScroll(open);
+
+  // Reset to the first image on open + close on Escape.
   useEffect(() => {
     if (!open) return;
     setActive(0);
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
   return (
@@ -69,19 +69,59 @@ export default function JourneyQuickLook({ journey, open, onClose }: Props) {
                 className="w-full h-full object-cover grayscale-[12%] sepia-[24%] brightness-[0.85]"
               />
               <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-background to-transparent" />
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+
+              {/* Prev / Next — large tap targets, ember-glow on hover */}
+              {journey.gallery.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActive((i) =>
+                        i === 0 ? journey.gallery.length - 1 : i - 1,
+                      )
+                    }
+                    aria-label="Previous image"
+                    className="absolute top-1/2 left-3 sm:left-4 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center bg-background/65 hover:bg-background/85 border border-accent/40 hover:border-accent text-foreground/90 hover:text-accent backdrop-blur-sm transition-all duration-300 ember-glow"
+                  >
+                    <ChevronLeft size={22} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActive((i) =>
+                        i === journey.gallery.length - 1 ? 0 : i + 1,
+                      )
+                    }
+                    aria-label="Next image"
+                    className="absolute top-1/2 right-3 sm:right-4 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center bg-background/65 hover:bg-background/85 border border-accent/40 hover:border-accent text-foreground/90 hover:text-accent backdrop-blur-sm transition-all duration-300 ember-glow"
+                  >
+                    <ChevronRight size={22} />
+                  </button>
+                </>
+              )}
+
+              {/* Larger pagination — each bullet is a 36×16 tap target (text
+                  is the visible 8×3px bar, surrounded by padding for touch). */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
                 {journey.gallery.map((src, i) => (
                   <button
                     key={src + i}
                     type="button"
                     onClick={() => setActive(i)}
                     aria-label={`Image ${i + 1}`}
-                    className={`h-1.5 transition-all duration-300 ${
-                      i === active ? "w-7 bg-accent" : "w-3 bg-foreground/40 hover:bg-foreground/70"
-                    }`}
-                  />
+                    className="group p-2 -m-1"
+                  >
+                    <span
+                      className={`block h-1.5 transition-all duration-300 ${
+                        i === active
+                          ? "w-8 bg-accent"
+                          : "w-4 bg-foreground/40 group-hover:bg-foreground/80"
+                      }`}
+                    />
+                  </button>
                 ))}
               </div>
+
               <div className="absolute top-4 left-4 flex items-center gap-2 bg-background/70 backdrop-blur-sm border border-accent/30 px-3 py-1.5">
                 <span className="text-accent text-base leading-none">
                   {CATEGORY_SIGIL[journey.category]}

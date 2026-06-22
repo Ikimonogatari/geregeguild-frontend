@@ -241,7 +241,7 @@ export default function Hero() {
             className="mt-10 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center max-w-sm sm:max-w-none mx-auto"
           >
             <Link
-              href="/journeys"
+              href="/discover"
               className="group relative overflow-hidden px-8 sm:px-10 py-4 sm:py-5 border border-accent bg-accent/15 font-accent text-[11px] sm:text-[12px] tracking-[0.3em] sm:tracking-[0.35em] uppercase text-foreground ember-glow text-center transition-colors duration-500 hover:text-background"
             >
               {/* Ember fill — sweeps up from the wax-seal base on hover */}
@@ -249,13 +249,13 @@ export default function Hero() {
                 aria-hidden
                 className="absolute inset-0 z-0 origin-bottom scale-y-0 bg-accent transition-transform duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:scale-y-100"
               />
-              <span className="relative z-10">Choose Your Journey</span>
+              <span className="relative z-10">Begin Your Charter</span>
             </Link>
             <Link
-              href="/journeys#interest"
+              href="/journeys"
               className="group relative px-8 sm:px-10 py-4 sm:py-5 border border-foreground/25 hover:border-accent transition-all duration-500 font-accent text-[11px] sm:text-[12px] tracking-[0.3em] sm:tracking-[0.35em] uppercase text-foreground/80 hover:text-foreground text-center"
             >
-              <span className="relative z-10">Find Your Mongolia</span>
+              <span className="relative z-10">Browse the Roads</span>
             </Link>
           </motion.div>
         </div>

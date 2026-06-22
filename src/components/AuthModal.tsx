@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useAuth } from './Providers';
 import { Button } from './ui/button';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  useLockBodyScroll(isOpen);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

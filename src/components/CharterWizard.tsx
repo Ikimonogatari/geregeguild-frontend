@@ -3,24 +3,37 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, Star } from "lucide-react";
+import { Check, X, Star, Minus, Plus } from "lucide-react";
 import GuideRankBadge from "@/components/GuideRankBadge";
-import type { Journey, Vehicle } from "@/lib/journeys";
+import type { Journey, MountOption, Vehicle } from "@/lib/journeys";
 import {
+  ACCOMMODATION_OPTIONS,
+  DIETARY_OPTIONS,
   getVehicle,
   guidesForJourney,
   guideFitsCategory,
   guideMeetsRank,
+  mountsForJourney,
   CATEGORY_SIGIL,
   GUIDE_MEDAL,
   type Medal,
 } from "@/lib/journeys";
 import { LEVEL_ORDER, type Guide, type GuideLevel } from "@/lib/guides";
 import { formatPriceRange } from "@/lib/format";
+import {
+  type GuideRole,
+  type JourneyDraft,
+  checkDraft,
+  clearDraft,
+  emptyDraft,
+  loadDraft,
+  saveDraft,
+} from "@/lib/draft";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 type Props = { journey: Journey };
 
-const STEPS = ["Vehicle", "Guide", "Charter"] as const;
+const STEPS = ["Vehicle", "Guide", "Comforts", "Summary"] as const;
 
 export default function CharterWizard({ journey }: Props) {
   const vehicles = useMemo(
@@ -28,6 +41,7 @@ export default function CharterWizard({ journey }: Props) {
     [journey]
   );
   const guides = useMemo(() => guidesForJourney(journey), [journey]);
+  const mounts = useMemo(() => mountsForJourney(journey), [journey]);
   const tierGroups = useMemo(() => {
     const order: GuideLevel[] = ["Guildmaster", "Master", "Novice", "Apprentice"];
     return order
@@ -39,22 +53,40 @@ export default function CharterWizard({ journey }: Props) {
       .filter((t) => t.list.length > 0);
   }, [guides]);
 
-  const [step, setStep] = useState(0); // 0 = vehicle, 1 = guide
-  const [vehicleId, setVehicleId] = useState<string>(journey.requiredVehicle);
-  const [guideSlug, setGuideSlug] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", email: "", dates: "", party: "", notes: "" });
+  // Draft — single source of truth for every selection. Persisted in
+  // localStorage; Phase B will swap this for a server-side draft model.
+  // Lazy initialiser checks localStorage first, so we restore any saved
+  // draft without a second render. SSR safely returns the empty draft
+  // since loadDraft() returns null when window is undefined.
+  const [draft, setDraft] = useState<JourneyDraft>(() => {
+    const saved = loadDraft(journey.slug);
+    if (saved) return saved;
+    const fresh = emptyDraft(journey.slug);
+    fresh.vehicleId = journey.requiredVehicle;
+    return fresh;
+  });
+  // Auto-save every change. Cheap; localStorage write is sync.
+  useEffect(() => {
+    saveDraft(draft);
+  }, [draft]);
+
+  function patchDraft(patch: Partial<JourneyDraft>) {
+    setDraft((d) => ({ ...d, ...patch }));
+  }
+
+  const [step, setStep] = useState(0);
   const [sent, setSent] = useState(false);
 
-  // Modal state — the object is kept after close so exit animations still render it.
+  // View-details modals (vehicle / guide). Object kept after close so
+  // exit animations still render it.
   const [modalVehicle, setModalVehicle] = useState<Vehicle | null>(null);
   const [vehicleOpen, setVehicleOpen] = useState(false);
   const [modalGuide, setModalGuide] = useState<Guide | null>(null);
   const [guideOpen, setGuideOpen] = useState(false);
-  const [reviewOpen, setReviewOpen] = useState(false);
 
-  const vehicle = vehicles.find((v) => v.id === vehicleId) ?? null;
-  const guide = guides.find((g) => g.slug === guideSlug) ?? null;
-  const currentStepIndex = reviewOpen ? 2 : step;
+  const vehicle = vehicles.find((v) => v.id === draft.vehicleId) ?? null;
+  const guide = guides.find((g) => g.slug === draft.guideSlug) ?? null;
+  const completeness = useMemo(() => checkDraft(draft), [draft]);
 
   const openVehicle = (v: Vehicle) => {
     setModalVehicle(v);
@@ -66,44 +98,59 @@ export default function CharterWizard({ journey }: Props) {
   };
 
   function goToStep(i: number) {
-    if (i === 2) {
-      if (guide) setReviewOpen(true);
-      return;
-    }
-    setReviewOpen(false);
+    if (i < 0 || i >= STEPS.length) return;
+    // Don't allow jumping past Guide without one chosen
+    if (i >= 2 && !guide) return;
     setStep(i);
   }
 
   function submit() {
-    // No backend yet — assemble a raven (mailto) and confirm in the modal.
+    // No backend yet — assemble a raven (mailto). Phase D wires real payment.
     const subject = `Charter — ${journey.title}`;
+    const mountLabel =
+      draft.mount === "None" ? "—" : draft.mount;
+    const dietLabel =
+      draft.diet === "Other" && draft.dietNotes.trim()
+        ? `Other — ${draft.dietNotes.trim()}`
+        : draft.diet;
     const body = [
       `Journey: ${journey.title} (${journey.region})`,
       `Vehicle: ${vehicle?.name ?? "—"}`,
-      `Guide: ${guide ? `${guide.name} · ${guide.level}` : "—"}`,
-      `Dates: ${form.dates || "—"}`,
-      `Party: ${form.party || "—"}`,
+      `Guide: ${guide ? `${guide.name} · ${guide.level}${draft.guideRole === "Trainee" ? " (trainee)" : ""}` : "—"}`,
+      `Travelers: ${draft.travelers}`,
+      `Accommodation: ${draft.accommodation === "Private" ? "Private sleeping arrangements" : "Group ger / shared camp"}`,
+      `Diet: ${dietLabel}${draft.designatedCook ? " (designated cook)" : ""}`,
+      `Mount: ${mountLabel}`,
+      `Dates: ${draft.contact.dates || "—"}`,
       "",
-      form.notes,
+      draft.specialRequirements
+        ? `Special requirements:\n${draft.specialRequirements}`
+        : "",
       "",
-      `— ${form.name}`,
-    ].join("\n");
+      `— ${draft.contact.name}`,
+    ]
+      .filter((line) => line !== null)
+      .join("\n");
     if (typeof window !== "undefined") {
       window.location.href = `mailto:hello@geregeguild.mn?subject=${encodeURIComponent(
         subject
       )}&body=${encodeURIComponent(body)}`;
     }
+    clearDraft(journey.slug);
     setSent(true);
   }
 
   return (
     <div className="max-w-5xl mx-auto">
       {/* Progress */}
-      <div className="flex items-center justify-center gap-3 sm:gap-5 mb-14">
+      <div className="flex items-center justify-center gap-2 sm:gap-4 mb-14">
         {STEPS.map((label, i) => {
-          const done = i < currentStepIndex;
-          const current = i === currentStepIndex;
-          const reachable = i <= 1 || (i === 2 && !!guide);
+          const done = i < step;
+          const current = i === step;
+          // Vehicle (0) and Guide (1) are always reachable. Beyond Guide,
+          // we need a guide chosen — otherwise the rest of the charter
+          // has nothing to attach to.
+          const reachable = i <= 1 || !!guide;
           return (
             <div key={label} className="flex items-center gap-3 sm:gap-5">
               <button
@@ -158,7 +205,7 @@ export default function CharterWizard({ journey }: Props) {
             />
             <div className="grid md:grid-cols-2 gap-5">
               {vehicles.map((v) => {
-                const selected = v.id === vehicleId;
+                const selected = v.id === draft.vehicleId;
                 const recommended = v.id === journey.requiredVehicle;
                 return (
                   <button
@@ -334,7 +381,7 @@ export default function CharterWizard({ journey }: Props) {
                           guide={g}
                           index={gi}
                           medal={medal}
-                          selected={g.slug === guideSlug}
+                          selected={g.slug === draft.guideSlug}
                           eligible={eligible}
                           fits={guideFitsCategory(g, journey)}
                           onOpen={() => openGuide(g)}
@@ -347,38 +394,88 @@ export default function CharterWizard({ journey }: Props) {
             </div>
           </motion.div>
         )}
+
+        {/* STEP 3 — Comforts (accommodation, diet, mount) */}
+        {step === 2 && (
+          <motion.div
+            key="comforts"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.4 }}
+          >
+            <StepHeading
+              eyebrow="Step Three"
+              title="Comforts of the charter"
+              sub="How you sleep, how you eat, and what you ride — set the small things that make the long road yours."
+            />
+
+            <ComfortsStep
+              draft={draft}
+              mounts={mounts}
+              onPatch={patchDraft}
+            />
+          </motion.div>
+        )}
+
+        {/* STEP 4 — Summary (inline; replaces the old review modal) */}
+        {step === 3 && (
+          <motion.div
+            key="summary"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.4 }}
+          >
+            <StepHeading
+              eyebrow="Step Four"
+              title="Your charter"
+              sub="Read it back, set who you are, and send the raven. A guide — not a sales desk — writes the first reply."
+            />
+
+            <SummaryStep
+              journey={journey}
+              vehicle={vehicle}
+              guide={guide}
+              draft={draft}
+              completeness={completeness}
+              onPatch={patchDraft}
+              onSubmit={submit}
+              sent={sent}
+            />
+          </motion.div>
+        )}
       </AnimatePresence>
 
-      {/* Nav controls */}
-      <div className="mt-14 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => step > 0 && setStep(step - 1)}
-          disabled={step === 0}
-          className="px-8 py-4 border border-highlight/50 hover:border-accent disabled:opacity-30 disabled:hover:border-highlight/50 transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-muted hover:text-foreground"
-        >
-          ← Back
-        </button>
-        {step === 0 ? (
+      {/* Nav controls — hidden on the Summary step (its own submit) */}
+      {step < 3 && !sent && (
+        <div className="mt-14 flex items-center justify-between gap-4">
           <button
             type="button"
-            onClick={() => vehicle && setStep(1)}
-            disabled={!vehicle}
-            className="px-10 py-4 border border-accent bg-accent/15 hover:bg-accent hover:text-background disabled:opacity-40 disabled:hover:bg-accent/15 disabled:hover:text-foreground transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
+            onClick={() => goToStep(step - 1)}
+            disabled={step === 0}
+            className="px-6 sm:px-8 py-4 border border-highlight/50 hover:border-accent disabled:opacity-30 disabled:hover:border-highlight/50 transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-muted hover:text-foreground"
           >
-            Choose your guide →
+            ← Back
           </button>
-        ) : (
           <button
             type="button"
-            onClick={() => guide && setReviewOpen(true)}
-            disabled={!guide}
-            className="px-10 py-4 border border-accent bg-accent/15 hover:bg-accent hover:text-background disabled:opacity-40 disabled:hover:bg-accent/15 disabled:hover:text-foreground transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
+            onClick={() => goToStep(step + 1)}
+            disabled={(step === 0 && !vehicle) || (step >= 1 && !guide)}
+            className="px-8 sm:px-10 py-4 border border-accent bg-accent/15 hover:bg-accent hover:text-background disabled:opacity-40 disabled:hover:bg-accent/15 disabled:hover:text-foreground transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
           >
-            Review charter →
+            {step === 0
+              ? "Choose your guide →"
+              : step === 1
+                ? "Comforts of the charter →"
+                : "Review the charter →"}
           </button>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Testimonial drift — a single chronicle threaded through the build,
+          rotates by step so the user reads new voices as they progress. */}
+      {!sent && step < 3 && <BuildTestimonial step={step} />}
 
       {/* ── Vehicle detail modal ── */}
       <Modal open={vehicleOpen} onClose={() => setVehicleOpen(false)} maxW="max-w-lg">
@@ -426,12 +523,12 @@ export default function CharterWizard({ journey }: Props) {
             <button
               type="button"
               onClick={() => {
-                setVehicleId(modalVehicle.id);
+                patchDraft({ vehicleId: modalVehicle.id });
                 setVehicleOpen(false);
               }}
               className="mt-8 w-full px-10 py-4 border border-accent bg-accent/15 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
             >
-              {modalVehicle.id === vehicleId ? "Keep this machine" : "Choose this machine"}
+              {modalVehicle.id === draft.vehicleId ? "Keep this machine" : "Choose this machine"}
             </button>
           </div>
         )}
@@ -441,124 +538,24 @@ export default function CharterWizard({ journey }: Props) {
       <Modal open={guideOpen} onClose={() => setGuideOpen(false)} maxW="max-w-xl">
         {modalGuide && (
           <GuideModalBody
+            // key remounts the body for each guide so local state
+            // (role toggle) reinitialises cleanly.
+            key={modalGuide.slug}
             guide={modalGuide}
             eligible={guideMeetsRank(modalGuide, journey)}
             fits={guideFitsCategory(modalGuide, journey)}
-            chosen={modalGuide.slug === guideSlug}
-            onChoose={() => {
-              setGuideSlug(modalGuide.slug);
+            chosen={modalGuide.slug === draft.guideSlug}
+            initialRole={
+              modalGuide.slug === draft.guideSlug ? draft.guideRole : "Lead"
+            }
+            onChoose={(role) => {
+              patchDraft({ guideSlug: modalGuide.slug, guideRole: role });
               setGuideOpen(false);
             }}
           />
         )}
       </Modal>
 
-      {/* ── Review charter modal (step 3) ── */}
-      <Modal open={reviewOpen} onClose={() => setReviewOpen(false)} maxW="max-w-3xl">
-        <div className="p-6 sm:p-9">
-          <p className="font-accent italic text-accent text-[12px] tracking-[0.35em] uppercase mb-2 text-center">
-            Step Three · Your charter
-          </p>
-          <h2 className="font-heading text-3xl sm:text-4xl uppercase tracking-[0.06em] text-foreground ember-text-glow leading-tight text-center">
-            The road, the machine, the guide
-          </h2>
-          <div className="ink-divider mt-7 mb-8 max-w-md mx-auto" />
-
-          {sent ? (
-            <div className="text-center py-4">
-              <div className="text-accent text-5xl mb-4 leading-none">✦</div>
-              <h3 className="font-heading text-2xl uppercase tracking-[0.1em] text-foreground">
-                The raven is away
-              </h3>
-              <p className="mt-4 text-foreground/85 font-serif italic text-[17px] leading-relaxed max-w-md mx-auto">
-                Your charter request is drafted to the Guild. A guide — not a
-                sales desk — will write back, with a charted map and a written
-                charter, before anything is owed.
-              </p>
-              <Link
-                href="/journeys"
-                className="inline-block mt-8 px-10 py-4 border border-highlight/50 hover:border-accent transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-muted hover:text-foreground"
-              >
-                Explore other roads
-              </Link>
-            </div>
-          ) : (
-            <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8">
-              {/* Summary */}
-              <div className="border border-highlight/40 bg-surface/50 p-7 ember-glow self-start">
-                <p className="font-accent italic text-accent text-[12px] tracking-[0.3em] uppercase mb-5">
-                  Charter summary
-                </p>
-                <SummaryRow
-                  label="Journey"
-                  value={`${CATEGORY_SIGIL[journey.category]}  ${journey.title}`}
-                  sub={journey.region}
-                />
-                <SummaryRow label="Vehicle" value={vehicle?.name ?? "—"} sub={vehicle?.priceImpact} />
-                <SummaryRow
-                  label="Guide"
-                  value={guide?.name ?? "—"}
-                  sub={guide ? `${guide.level} · ${guide.homeRegion}` : undefined}
-                />
-                {journey.category !== "Custom" && (
-                  <SummaryRow
-                    label="The road"
-                    value={`${journey.distanceKm} km · ${journey.days} days`}
-                    sub={journey.difficulty}
-                  />
-                )}
-                <div className="ink-divider my-5" />
-                <div className="flex items-center justify-between">
-                  <span className="font-accent uppercase tracking-[0.2em] text-[11px] text-muted">
-                    Estimate, per patron
-                  </span>
-                  <span className="font-heading text-accent text-[20px]">
-                    {formatPriceRange(journey.priceFrom, journey.priceTo)}
-                  </span>
-                </div>
-                <p className="mt-3 font-accent italic text-muted text-[12px] leading-relaxed">
-                  A placeholder figure. Your written charter carries the true
-                  price, settled before you owe anything.
-                </p>
-              </div>
-
-              {/* Raven form */}
-              <div>
-                <p className="font-accent italic text-accent text-[12px] tracking-[0.3em] uppercase mb-5">
-                  Send a raven
-                </p>
-                <div className="space-y-4">
-                  <Field label="Your name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-                  <Field label="Email for the reply" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <Field label="Rough dates" value={form.dates} onChange={(v) => setForm({ ...form, dates: v })} placeholder="e.g. late August" />
-                    <Field label="Party size" value={form.party} onChange={(v) => setForm({ ...form, party: v })} placeholder="e.g. 2 travellers" />
-                  </div>
-                  <div>
-                    <label className="font-accent uppercase tracking-[0.2em] text-[11px] text-muted block mb-2">
-                      Tell us the Mongolia you want to meet
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={form.notes}
-                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                      className="w-full bg-surface/40 border border-highlight/40 focus:border-accent/70 outline-none px-4 py-3 font-serif text-foreground text-[16px] leading-relaxed transition-colors resize-none"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={submit}
-                    disabled={!form.name || !form.email}
-                    className="w-full px-10 py-5 border border-accent bg-accent/15 hover:bg-accent hover:text-background disabled:opacity-40 disabled:hover:bg-accent/15 disabled:hover:text-foreground transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-foreground ember-glow"
-                  >
-                    Send the charter raven
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </Modal>
     </div>
   );
 }
@@ -576,15 +573,15 @@ function Modal({
   children: React.ReactNode;
   maxW?: string;
 }) {
+  // Lock the background page scroll (incl. Lenis) while open.
+  useLockBodyScroll(open);
+
+  // Close on Escape.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
   return (
@@ -629,14 +626,22 @@ function GuideModalBody({
   eligible,
   fits,
   chosen,
+  initialRole = "Lead",
   onChoose,
 }: {
   guide: Guide;
   eligible: boolean;
   fits: boolean;
   chosen: boolean;
-  onChoose: () => void;
+  initialRole?: GuideRole;
+  onChoose: (role: GuideRole) => void;
 }) {
+  // The same guide can be chosen as either the Lead or as a Trainee
+  // accompanying a more senior Lead. Trainee charters cost less and
+  // give newer guides exposure on graded roads. (Pricing in Phase C.)
+  // Parent passes a key={guide.slug} so this component remounts per
+  // guide — useState reinitialises cleanly, no effect needed.
+  const [role, setRole] = useState<GuideRole>(initialRole);
   return (
     <div className="p-6 sm:p-8">
       <div className="flex gap-5">
@@ -697,13 +702,46 @@ function GuideModalBody({
       </div>
 
       {eligible ? (
-        <button
-          type="button"
-          onClick={onChoose}
-          className="mt-8 w-full px-10 py-4 border border-accent bg-accent/15 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
-        >
-          {chosen ? "Keep this guide" : "Choose this guide"}
-        </button>
+        <>
+          {/* Lead vs Trainee — every guide can join in either role. */}
+          <div className="mt-6">
+            <p className="font-accent uppercase tracking-[0.2em] text-[10px] text-muted mb-2.5">
+              Role on this charter
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {(["Lead", "Trainee"] as const).map((r) => {
+                const active = role === r;
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
+                    className={[
+                      "px-4 py-3 border font-accent uppercase tracking-[0.16em] text-[11px] transition-all duration-300",
+                      active
+                        ? "border-accent bg-accent/15 text-accent ember-glow"
+                        : "border-highlight/40 text-foreground/80 hover:border-accent/70 hover:text-foreground",
+                    ].join(" ")}
+                  >
+                    {r === "Lead" ? "Lead guide" : "Trainee · accompanying"}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-2 font-accent italic text-muted text-[11px] leading-relaxed">
+              Trainee guides ride with a senior lead — lighter on the
+              charter, formative for the guide.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onChoose(role)}
+            className="mt-6 w-full px-10 py-4 border border-accent bg-accent/15 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
+          >
+            {chosen ? "Keep this guide" : "Choose this guide"}
+          </button>
+        </>
       ) : (
         <div className="mt-8">
           <button
@@ -940,5 +978,416 @@ function Field({
         className="w-full bg-surface/40 border border-highlight/40 focus:border-accent/70 outline-none px-4 py-3 font-serif text-foreground text-[16px] transition-colors placeholder:text-muted/50"
       />
     </div>
+  );
+}
+
+/* ────────────────────────── ComfortsStep (Step 3) ──────────────────────────
+   Accommodation style, dietary preference, optional mount. All three live
+   on one screen because they're small choices that should not be three
+   separate page-loads of friction. */
+
+function ComfortsStep({
+  draft,
+  mounts,
+  onPatch,
+}: {
+  draft: JourneyDraft;
+  mounts: MountOption[];
+  onPatch: (patch: Partial<JourneyDraft>) => void;
+}) {
+  return (
+    <div className="grid lg:grid-cols-2 gap-8">
+      {/* Accommodation */}
+      <div>
+        <p className="font-accent italic text-accent text-[12px] tracking-[0.3em] uppercase mb-4">
+          Sleeping arrangements
+        </p>
+        <div className="space-y-3">
+          {ACCOMMODATION_OPTIONS.map((opt) => {
+            const active = draft.accommodation === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => onPatch({ accommodation: opt.id })}
+                className={[
+                  "w-full text-left border p-5 transition-all duration-300",
+                  active
+                    ? "border-accent bg-accent/[0.08] ember-glow"
+                    : "border-highlight/40 bg-surface/40 hover:border-accent/60",
+                ].join(" ")}
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <h3 className="font-heading uppercase tracking-[0.06em] text-[15px] text-foreground">
+                    {opt.label}
+                  </h3>
+                  <span
+                    className={[
+                      "shrink-0 font-accent uppercase tracking-[0.16em] text-[10px] px-2 py-1 border",
+                      opt.id === "Private"
+                        ? "border-accent/50 text-accent"
+                        : "border-highlight/40 text-muted",
+                    ].join(" ")}
+                  >
+                    {opt.feeHint}
+                  </span>
+                </div>
+                <p className="text-foreground/75 text-[14px] font-serif italic leading-relaxed">
+                  {opt.blurb}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Diet */}
+      <div>
+        <p className="font-accent italic text-accent text-[12px] tracking-[0.3em] uppercase mb-4">
+          Diet at camp
+        </p>
+        <div className="grid grid-cols-2 gap-2.5">
+          {DIETARY_OPTIONS.map((opt) => {
+            const active = draft.diet === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => onPatch({ diet: opt.id })}
+                className={[
+                  "flex items-center gap-2.5 px-4 py-3 border font-accent text-[12px] tracking-[0.1em] transition-all duration-300",
+                  active
+                    ? "border-accent bg-accent/15 text-accent ember-glow"
+                    : "border-highlight/40 text-foreground/80 hover:border-accent/70 hover:text-foreground",
+                ].join(" ")}
+              >
+                <span className="text-base leading-none">{opt.sigil}</span>
+                {opt.label.split("(")[0].trim()}
+              </button>
+            );
+          })}
+        </div>
+        {draft.diet === "Other" && (
+          <div className="mt-4">
+            <label className="font-accent uppercase tracking-[0.2em] text-[10px] text-muted block mb-2">
+              Tell us
+            </label>
+            <textarea
+              rows={2}
+              value={draft.dietNotes}
+              onChange={(e) => onPatch({ dietNotes: e.target.value })}
+              placeholder="e.g. gluten-free, halal, severe nut allergy"
+              className="w-full bg-surface/40 border border-highlight/40 focus:border-accent/70 outline-none px-4 py-3 font-serif text-foreground text-[15px] leading-relaxed transition-colors resize-none placeholder:text-muted/50"
+            />
+          </div>
+        )}
+        <label className="mt-5 flex items-start gap-3 cursor-pointer group">
+          <input
+            type="checkbox"
+            checked={draft.designatedCook}
+            onChange={(e) => onPatch({ designatedCook: e.target.checked })}
+            className="mt-1 w-4 h-4 accent-[#C9922A] cursor-pointer"
+          />
+          <span>
+            <span className="block font-accent uppercase tracking-[0.16em] text-[12px] text-foreground group-hover:text-accent transition-colors">
+              Request a designated cook
+            </span>
+            <span className="block font-accent italic text-muted text-[12px] leading-relaxed mt-1">
+              A cook on the charter, matched to the diet above. May add to the fee.
+            </span>
+          </span>
+        </label>
+
+        {/* Mount */}
+        <div className="mt-9">
+          <p className="font-accent italic text-accent text-[12px] tracking-[0.3em] uppercase mb-4">
+            Mount along the road
+          </p>
+          <div className="space-y-2.5">
+            {mounts.map((m) => {
+              const active = draft.mount === m.id;
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => onPatch({ mount: m.id })}
+                  className={[
+                    "w-full text-left flex items-start gap-3 px-4 py-3 border transition-all duration-300",
+                    active
+                      ? "border-accent bg-accent/[0.08] ember-glow"
+                      : "border-highlight/40 bg-surface/40 hover:border-accent/60",
+                  ].join(" ")}
+                >
+                  <span className="text-accent text-[18px] leading-none mt-0.5 w-5 text-center shrink-0">
+                    {m.sigil}
+                  </span>
+                  <span>
+                    <span className="block font-heading uppercase tracking-[0.06em] text-[13px] text-foreground">
+                      {m.label}
+                    </span>
+                    <span className="block font-accent italic text-muted text-[12px] leading-relaxed mt-1">
+                      {m.blurb}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {mounts.length === 1 && (
+            <p className="mt-3 font-accent italic text-muted text-[11px] leading-relaxed">
+              This country does not keep mounts for guests. Set as written.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────── SummaryStep (Step 4) ──────────────────────────
+   The full charter at a glance + the contact details + send-raven CTA.
+   This replaces the old review modal — inline, scrollable, no extra click. */
+
+type DraftCompleteness = { ready: boolean; missing: string[] };
+
+function SummaryStep({
+  journey,
+  vehicle,
+  guide,
+  draft,
+  completeness,
+  onPatch,
+  onSubmit,
+  sent,
+}: {
+  journey: Journey;
+  vehicle: Vehicle | null;
+  guide: Guide | null;
+  draft: JourneyDraft;
+  completeness: DraftCompleteness;
+  onPatch: (patch: Partial<JourneyDraft>) => void;
+  onSubmit: () => void;
+  sent: boolean;
+}) {
+  if (sent) {
+    return (
+      <div className="text-center py-12 max-w-xl mx-auto">
+        <div className="text-accent text-6xl mb-5 leading-none">✦</div>
+        <h3 className="font-heading text-3xl uppercase tracking-[0.1em] text-foreground">
+          The raven is away
+        </h3>
+        <p className="mt-5 text-foreground/85 font-serif italic text-[18px] leading-relaxed">
+          Your charter request is drafted to the Guild. A guide — not a sales
+          desk — will write back, with a charted map and a written charter,
+          before anything is owed.
+        </p>
+        <Link
+          href="/journeys"
+          className="inline-block mt-10 px-10 py-4 border border-highlight/50 hover:border-accent transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-muted hover:text-foreground"
+        >
+          Explore other roads
+        </Link>
+      </div>
+    );
+  }
+
+  const accommodationLabel =
+    draft.accommodation === "Private"
+      ? "Private sleeping arrangements"
+      : "Group ger / shared camp";
+  const dietLabel =
+    draft.diet === "Other"
+      ? draft.dietNotes.trim() || "Other (notes pending)"
+      : draft.diet;
+  const mountLabel = draft.mount === "None" ? "—" : draft.mount;
+  const guideLabel = guide
+    ? `${guide.name}${draft.guideRole === "Trainee" ? " · Trainee" : ""}`
+    : "—";
+  const guideSub = guide ? `${guide.level} · ${guide.homeRegion}` : undefined;
+
+  return (
+    <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8">
+      {/* Charter summary card */}
+      <div className="border border-highlight/40 bg-surface/50 p-7 ember-glow self-start">
+        <p className="font-accent italic text-accent text-[12px] tracking-[0.3em] uppercase mb-5">
+          Your charter
+        </p>
+        <SummaryRow
+          label="Journey"
+          value={`${CATEGORY_SIGIL[journey.category]}  ${journey.title}`}
+          sub={journey.region}
+        />
+        <SummaryRow
+          label="Vehicle"
+          value={vehicle?.name ?? "—"}
+          sub={vehicle?.priceImpact}
+        />
+        <SummaryRow label="Guide" value={guideLabel} sub={guideSub} />
+        <SummaryRow label="Travelers" value={`${draft.travelers}`} />
+        <SummaryRow label="Sleeping" value={accommodationLabel} />
+        <SummaryRow
+          label="Diet"
+          value={dietLabel}
+          sub={draft.designatedCook ? "Designated cook requested" : undefined}
+        />
+        <SummaryRow label="Mount" value={mountLabel} />
+        {journey.category !== "Custom" && (
+          <SummaryRow
+            label="The road"
+            value={`${journey.distanceKm} km · ${journey.days} days`}
+            sub={journey.difficulty}
+          />
+        )}
+        <div className="ink-divider my-5" />
+        <div className="flex items-center justify-between">
+          <span className="font-accent uppercase tracking-[0.2em] text-[11px] text-muted">
+            Estimate, per patron
+          </span>
+          <span className="font-heading text-accent text-[20px]">
+            {formatPriceRange(journey.priceFrom, journey.priceTo)}
+          </span>
+        </div>
+        <p className="mt-3 font-accent italic text-muted text-[12px] leading-relaxed">
+          An indicative figure. Your written charter will carry the true
+          price — by traveler, guide rank, and the choices above — settled
+          before you owe anything.
+        </p>
+      </div>
+
+      {/* Contact + send */}
+      <div className="space-y-5">
+        {/* Traveler counter */}
+        <div>
+          <label className="font-accent uppercase tracking-[0.2em] text-[11px] text-muted block mb-2">
+            Travelers in your party
+          </label>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                onPatch({ travelers: Math.max(1, draft.travelers - 1) })
+              }
+              disabled={draft.travelers <= 1}
+              className="w-10 h-10 flex items-center justify-center border border-highlight/50 hover:border-accent text-foreground transition-colors disabled:opacity-30 disabled:hover:border-highlight/50"
+              aria-label="Fewer travelers"
+            >
+              <Minus size={16} />
+            </button>
+            <span className="font-heading text-foreground text-[24px] w-12 text-center tabular-nums">
+              {draft.travelers}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                onPatch({ travelers: Math.min(24, draft.travelers + 1) })
+              }
+              className="w-10 h-10 flex items-center justify-center border border-highlight/50 hover:border-accent text-foreground transition-colors"
+              aria-label="More travelers"
+            >
+              <Plus size={16} />
+            </button>
+            <span className="ml-2 font-accent italic text-muted text-[12px]">
+              {draft.travelers === 1 ? "patron" : "patrons"}
+            </span>
+          </div>
+        </div>
+
+        {/* Special requirements */}
+        <div>
+          <label className="font-accent uppercase tracking-[0.2em] text-[11px] text-muted block mb-2">
+            Special requirements (optional)
+          </label>
+          <textarea
+            rows={3}
+            value={draft.specialRequirements}
+            onChange={(e) => onPatch({ specialRequirements: e.target.value })}
+            placeholder="e.g. faster pace, reach Gobi in 2 days, hotel instead of ger one night"
+            className="w-full bg-surface/40 border border-highlight/40 focus:border-accent/70 outline-none px-4 py-3 font-serif text-foreground text-[15px] leading-relaxed transition-colors resize-none placeholder:text-muted/50"
+          />
+          <p className="mt-1.5 font-accent italic text-muted text-[11px] leading-relaxed">
+            Unusual requests may incur a fee. Your written charter will price them honestly.
+          </p>
+        </div>
+
+        <Field
+          label="Your name"
+          value={draft.contact.name}
+          onChange={(v) => onPatch({ contact: { ...draft.contact, name: v } })}
+        />
+        <Field
+          label="Email for the reply"
+          type="email"
+          value={draft.contact.email}
+          onChange={(v) => onPatch({ contact: { ...draft.contact, email: v } })}
+        />
+        <Field
+          label="Rough dates"
+          value={draft.contact.dates}
+          placeholder="e.g. late August"
+          onChange={(v) => onPatch({ contact: { ...draft.contact, dates: v } })}
+        />
+
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={!completeness.ready}
+          className="w-full px-10 py-5 border border-accent bg-accent/15 hover:bg-accent hover:text-background disabled:opacity-40 disabled:hover:bg-accent/15 disabled:hover:text-foreground transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-foreground ember-glow"
+        >
+          Send the charter raven
+        </button>
+        {!completeness.ready && completeness.missing.length > 0 && (
+          <p className="font-accent italic text-highlight text-[12px] tracking-[0.08em] leading-relaxed">
+            Still needed — {completeness.missing.join(", ").toLowerCase()}.
+          </p>
+        )}
+        <p className="font-accent italic text-muted text-[11px] leading-relaxed">
+          Your draft is kept on this device. You can leave and return — the
+          selections persist for the next visit.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────── BuildTestimonial ──────────────────────────
+   A single chronicle whispered into the build flow. Rotates by step
+   so the user reads a new voice as they progress, without crowding the
+   page. Quotes are recycled from the Reviews component — no new copy. */
+
+const BUILD_CHRONICLES = [
+  {
+    line:
+      "An absolute masterclass in Mongolian travel — local knowledge, fluent English, quiet humour, exceptional.",
+    by: "NJ Kessler — Winter Charter, Khövsgöl",
+  },
+  {
+    line:
+      "Staying with nomadic families and visiting the reindeer herders was life-changing.",
+    by: "Fletcher Bradford — Taiga Charter, North",
+  },
+  {
+    line:
+      "Our guide was more than a guide; by the end of the road he was a friend.",
+    by: "Fletcher Bradford — Taiga Charter, North",
+  },
+];
+
+function BuildTestimonial({ step }: { step: number }) {
+  const chronicle = BUILD_CHRONICLES[step % BUILD_CHRONICLES.length];
+  return (
+    <motion.figure
+      key={step}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
+      className="mt-16 max-w-xl mx-auto border-l-2 border-accent/40 pl-6"
+    >
+      <blockquote className="font-serif italic text-foreground/85 text-[16px] leading-[1.7]">
+        &ldquo;{chronicle.line}&rdquo;
+      </blockquote>
+      <figcaption className="mt-3 font-accent italic text-muted text-[11px] tracking-[0.2em] uppercase">
+        — {chronicle.by}
+      </figcaption>
+    </motion.figure>
   );
 }
