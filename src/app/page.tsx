@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import HeroEpigraph from "@/components/HeroEpigraph";
 import LayOfTheGuild from "@/components/LayOfTheGuild";
 import About from "@/components/About";
+import TheLongRide from "@/components/TheLongRide";
 import ChooseByInterest from "@/components/ChooseByInterest";
 import QuestPreview from "@/components/QuestPreview";
 import GuildSection from "@/components/GuildSection";
@@ -24,6 +25,7 @@ export default function Home() {
       <HeroEpigraph />
       <LayOfTheGuild />
       <About />
+      <TheLongRide />
       <ChooseByInterest />
       <GuildSection />
       <QuestPreview />

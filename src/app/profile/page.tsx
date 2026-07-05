@@ -1,173 +1,436 @@
-'use client';
+"use client";
 
-import { useAuth, useGame } from '@/components/Providers';
-import Navbar from '@/components/Navbar';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ScrollText, MapPin, Award, Users } from 'lucide-react';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import PageTransition from '@/components/PageTransition';
+/* ────────────────────────────────────────────────────────────
+   The Bearer's Passport — the /profile page, refactored from
+   the legacy SaaS-y "brand-charcoal" look into the parchment /
+   Cinzel language used across the rest of the site.
+
+   Game data is unchanged (useAuth / useGame). Only the frame
+   around it has been rebuilt: wax-seal monogram, rank ladder,
+   heraldic roster, illuminated lore cards.
+   ──────────────────────────────────────────────────────────── */
+
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Award, Compass, MapPin, ScrollText, Users } from "lucide-react";
+import { useAuth, useGame } from "@/components/Providers";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
+import { cn } from "@/lib/utils";
+
+/* Ladder used only for visual rendering. The user's actual rank
+   is whatever string the backend hands back; unknown ranks fall
+   through cleanly. */
+const RANK_LADDER = ["Novice", "Ranger", "Master", "Guildmaster"] as const;
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const { gameState, rank, pois, leaderboard } = useGame();
-  const router = useRouter();
 
-  useEffect(() => {
-    // If we have no user and auth is fully loaded (in a real app), redirect.
-    // For this mock, we just check if it's null on mount. Since it might take a tick, we can be lenient or strict.
-    // Let's just show a fallback if not logged in.
-  }, [user, router]);
-
+  /* ── Not logged in ────────────────────────────────────── */
   if (!user) {
     return (
-      <main className="min-h-screen bg-brand-charcoal text-white pt-36 px-6">
+      <main className="min-h-screen bg-background overflow-x-hidden">
         <Navbar />
-        <div className="max-w-4xl mx-auto text-center mt-20">
-          <h1 className="text-4xl font-bricolage text-brand-gold mb-6">Access Denied</h1>
-          <p className="font-space-grotesk text-lg text-white/70">Please login to view your Gerege Passport.</p>
-        </div>
+        <section className="pt-40 pb-24 px-6">
+          <div className="max-w-lg mx-auto text-center">
+            <p className="font-accent italic text-accent text-[13px] tracking-[0.4em] uppercase mb-5">
+              The Gate is Sealed
+            </p>
+            <h1 className="font-heading text-4xl sm:text-5xl uppercase tracking-[0.08em] text-foreground ember-text-glow">
+              Sign your name at the door
+            </h1>
+            <div className="ink-divider mt-8 max-w-sm mx-auto" />
+            <p className="mt-8 font-serif italic text-foreground/85 text-[17px] leading-relaxed">
+              The Bearer&rsquo;s Passport is only shown to the bearer.
+              Present your name to the Guild to see the record of your rides.
+            </p>
+            <p className="mt-10 font-accent italic text-muted text-[12px] tracking-[0.3em] uppercase">
+              Open the gate from the top-right corner
+            </p>
+          </div>
+        </section>
+        <Footer />
       </main>
     );
   }
 
-  const unlockedLoreData = pois.filter(poi => gameState.unlockedPOIs.includes(poi.id));
+  const unlockedLore = pois.filter((poi) => gameState.unlockedPOIs.includes(poi.id));
+  const initials = user.username
+    .split(/\s+/)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .slice(0, 2)
+    .join("");
+  const rankIndex = RANK_LADDER.indexOf(rank as typeof RANK_LADDER[number]);
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-brand-charcoal text-white pt-36 px-6 pb-20">
-      <Navbar />
-      
-      <div className="max-w-5xl mx-auto space-y-16">
-        
-        {/* Header Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center relative py-12 border-y border-brand-gold/20"
-        >
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-px bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
-          <h1 className="text-5xl md:text-7xl font-bricolage font-bold text-white mb-4">
-            <span className="text-brand-gold">{user.username}'s</span> Passport
-          </h1>
-          <p className="text-xl text-white/60 font-space-grotesk uppercase tracking-[0.2em]">
-            Guild Rank: <span className="text-brand-gold font-bold">{rank}</span>
-          </p>
-          <div className="mt-6 inline-flex items-center space-x-2 bg-white/5 rounded-full px-6 py-2 border border-white/10">
-            <Award className="text-brand-gold" size={20} />
-            <span className="font-bold tracking-widest">{gameState.points} Points</span>
-          </div>
-        </motion.div>
+      <main className="min-h-screen bg-background overflow-x-hidden">
+        <Navbar />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          
-          {/* Stats Sidebar */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="lg:col-span-1 space-y-8"
+        {/* ── Hero — the sealed passport plate ─────────────── */}
+        <section className="relative pt-36 pb-16 px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.2, 0.7, 0.2, 1] }}
+            className="relative max-w-5xl mx-auto border border-accent/40 bg-surface/60 vignette ember-glow"
           >
-            <div className="bg-white/5 border border-white/10 p-8 rounded-xl">
-              <h2 className="text-2xl font-bricolage text-brand-gold mb-6 flex items-center gap-3">
-                <MapPin size={24} /> Journey Stats
-              </h2>
-              <div className="space-y-4 font-space-grotesk">
-                <div className="flex justify-between items-center border-b border-white/10 pb-4">
-                  <span className="text-white/60">Locations Visited</span>
-                  <span className="text-2xl font-bold">{gameState.unlockedPOIs.length} <span className="text-sm text-white/40">/ {pois.length}</span></span>
+            {/* Ornate corners */}
+            <span aria-hidden className="absolute -top-px -left-px size-6 border-t-2 border-l-2 border-accent/70" />
+            <span aria-hidden className="absolute -top-px -right-px size-6 border-t-2 border-r-2 border-accent/70" />
+            <span aria-hidden className="absolute -bottom-px -left-px size-6 border-b-2 border-l-2 border-accent/70" />
+            <span aria-hidden className="absolute -bottom-px -right-px size-6 border-b-2 border-r-2 border-accent/70" />
+
+            <div className="grid md:grid-cols-[220px_1fr_auto] items-center gap-8 p-8 sm:p-10">
+              {/* Monogrammed wax seal */}
+              <div className="relative mx-auto md:mx-0">
+                <div className="relative size-40 rounded-full bg-[#7a2a18] border-[6px] border-[#3a1108] shadow-[0_8px_28px_rgba(0,0,0,0.7)] rotate-[-6deg] grid place-items-center overflow-hidden wax-pulse">
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/10 via-transparent to-black/40" />
+                  <div className="text-center relative">
+                    <div className="font-heading text-foreground text-4xl leading-none tracking-widest">
+                      {initials || "GG"}
+                    </div>
+                    <div className="mt-1 font-accent italic text-foreground/80 text-[9px] tracking-[0.35em] uppercase">
+                      Bearer
+                    </div>
+                  </div>
                 </div>
-                <div className="pt-4">
-                  <Link href="/map" className="text-brand-gold hover:text-white uppercase tracking-widest text-sm font-bold flex items-center gap-2 group transition-colors">
-                    Continue Exploring 
-                    <span className="group-hover:translate-x-2 transition-transform">→</span>
-                  </Link>
+                <span className="absolute -bottom-2 -right-2 size-9 rounded-full bg-accent/90 grid place-items-center font-heading text-background text-[14px] rotate-[8deg] shadow-md">
+                  <Award className="size-4" />
+                </span>
+              </div>
+
+              {/* Identity */}
+              <div className="text-center md:text-left">
+                <p className="font-accent italic text-accent text-[12px] tracking-[0.4em] uppercase">
+                  The Bearer&rsquo;s Passport
+                </p>
+                <h1 className="mt-3 font-heading text-4xl sm:text-5xl md:text-6xl uppercase tracking-[0.06em] text-foreground ember-text-glow leading-[1.05]">
+                  {user.username}
+                </h1>
+                <p className="mt-3 font-serif italic text-muted text-[17px]">
+                  Guildmark of the Realm · rank of{" "}
+                  <span className="text-accent font-heading tracking-wide">{rank}</span>
+                </p>
+                <div className="ink-divider mt-6 max-w-xs mx-auto md:mx-0" />
+                <p className="mt-4 font-accent italic text-muted text-[11px] tracking-[0.25em] uppercase">
+                  Issued by the Guild · sealed in wax
+                </p>
+              </div>
+
+              {/* Karma tally */}
+              <div className="text-center border-t md:border-t-0 md:border-l border-highlight/40 pt-6 md:pt-0 md:pl-8">
+                <p className="font-accent italic text-accent text-[11px] tracking-[0.3em] uppercase">
+                  Karma
+                </p>
+                <div className="mt-2 font-heading text-6xl sm:text-7xl text-foreground leading-none ember-text-glow">
+                  {gameState.points}
                 </div>
+                <p className="mt-2 font-serif italic text-muted text-[13px]">
+                  earned on the road
+                </p>
               </div>
             </div>
+          </motion.div>
+        </section>
 
-            <div className="bg-white/5 border border-white/10 p-8 rounded-xl">
-              <h2 className="text-2xl font-bricolage text-brand-gold mb-6 flex items-center gap-3">
-                <Users size={24} /> Guild Leaderboard
-              </h2>
-              <div className="space-y-4 font-space-grotesk">
-                {leaderboard.length === 0 ? (
-                   <p className="text-white/40 text-sm">Waiting for members...</p>
-                ) : (
-                  leaderboard.map((entry, i) => (
-                    <div key={i} className="flex justify-between items-center border-b border-white/10 pb-4 last:border-0 last:pb-0">
-                      <div className="flex items-center gap-3">
-                        <span className="text-brand-gold font-bold w-4 text-sm">{i + 1}</span>
-                        <div className="flex flex-col">
-                          <span className={cn("font-bold text-sm", entry.username === user.username && "text-brand-gold")}>
-                            {entry.username} {entry.username === user.username && "(You)"}
-                          </span>
-                          <span className="text-[10px] uppercase tracking-wider text-white/40">{entry.rank}</span>
+        {/* ── Main grid ────────────────────────────────────── */}
+        <section className="px-6 pb-28">
+          <div className="max-w-5xl mx-auto grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-10">
+            {/* ─ LEFT rail ─────────────────────────────────── */}
+            <div className="space-y-8">
+              {/* Rank ladder */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.7 }}
+                className="border border-highlight/40 bg-surface/50 p-7 ember-glow"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-accent"><Compass className="size-5" /></span>
+                  <h2 className="font-heading uppercase tracking-[0.14em] text-foreground text-[15px]">
+                    The Ladder
+                  </h2>
+                </div>
+                <ul className="space-y-4">
+                  {RANK_LADDER.map((r, i) => {
+                    const isCurrent = i === rankIndex;
+                    const climbed = rankIndex >= 0 && i <= rankIndex;
+                    return (
+                      <li key={r} className="flex items-center gap-4">
+                        <span
+                          className={cn(
+                            "size-3 rounded-full border-2 shrink-0",
+                            isCurrent
+                              ? "bg-accent border-accent ember-glow"
+                              : climbed
+                                ? "bg-highlight/70 border-highlight"
+                                : "bg-transparent border-highlight/40",
+                          )}
+                          aria-hidden
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div
+                            className={cn(
+                              "font-heading uppercase tracking-[0.12em] text-[14px]",
+                              isCurrent
+                                ? "text-accent"
+                                : climbed
+                                  ? "text-foreground"
+                                  : "text-muted",
+                            )}
+                          >
+                            {r}
+                          </div>
+                          {isCurrent && (
+                            <div className="font-accent italic text-muted text-[10px] tracking-[0.3em] uppercase">
+                              you stand here
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      <span className="font-bold text-white/80 text-sm">{entry.points}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Lore Collection */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="lg:col-span-2 space-y-6"
-          >
-            <h2 className="text-3xl font-bricolage text-brand-gold mb-8 flex items-center gap-3">
-              <ScrollText size={28} /> Unlocked Lore
-            </h2>
-
-            {unlockedLoreData.length === 0 ? (
-              <div className="text-center py-12 border border-dashed border-white/20 rounded-xl bg-white/5">
-                <p className="text-white/50 font-space-grotesk text-lg">Your journal is empty.</p>
-                <Link href="/map" className="inline-block mt-4 px-6 py-3 bg-brand-gold text-brand-charcoal font-bold tracking-widest uppercase text-sm hover:bg-white transition-colors">
-                  Find Locations on Map
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {unlockedLoreData.map((poi, idx) => (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 + (idx * 0.1) }}
-                    key={poi.id} 
-                    className="flex flex-col md:flex-row bg-black/20 border border-brand-gold/20 rounded-xl hover:border-brand-gold/50 transition-colors overflow-hidden"
-                  >
-                    <div className="md:w-1/3 relative h-48 md:h-auto">
-                      <img src={poi.imageUrl} alt={poi.name} className="w-full h-full object-cover" />
-                      <div className="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-widest bg-brand-charcoal text-brand-gold px-2 py-1 rounded shadow">
-                        {poi.type}
-                      </div>
-                    </div>
-                    <div className="p-8 md:w-2/3">
-                      <div className="flex items-start justify-between mb-4">
-                        <h3 className="text-2xl font-bold font-bricolage text-white">{poi.name}</h3>
-                        <span className="text-brand-gold text-sm font-bold bg-brand-gold/10 px-3 py-1 rounded-full whitespace-nowrap ml-4">
-                          +{poi.points} pts
+                        <span
+                          className={cn(
+                            "font-accent italic text-[10px] tracking-[0.25em]",
+                            climbed ? "text-accent" : "text-muted/60",
+                          )}
+                        >
+                          {String(i + 1).padStart(2, "0")}
                         </span>
-                      </div>
-                      <p className="text-white/80 font-space-grotesk leading-relaxed">
-                        {poi.lore}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </motion.div>
-          
-        </div>
-      </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {rankIndex < 0 && (
+                  <p className="mt-4 font-serif italic text-muted text-[12px]">
+                    Your current mark: <span className="text-accent">{rank}</span>
+                  </p>
+                )}
+              </motion.div>
+
+              {/* Journey progress */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.7, delay: 0.05 }}
+                className="border border-highlight/40 bg-surface/50 p-7 ember-glow"
+              >
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="text-accent"><MapPin className="size-5" /></span>
+                  <h2 className="font-heading uppercase tracking-[0.14em] text-foreground text-[15px]">
+                    The Road So Far
+                  </h2>
+                </div>
+                <div className="flex items-end gap-2 mb-3">
+                  <span className="font-heading text-4xl text-foreground leading-none">
+                    {gameState.unlockedPOIs.length}
+                  </span>
+                  <span className="font-serif italic text-muted mb-1">
+                    of {pois.length} places touched
+                  </span>
+                </div>
+                {/* Bar */}
+                <div className="relative h-1.5 bg-background/60 border border-highlight/30 overflow-hidden">
+                  <motion.span
+                    className="absolute inset-y-0 left-0 bg-accent"
+                    initial={{ width: 0 }}
+                    animate={{
+                      width: `${pois.length ? Math.min(100, (gameState.unlockedPOIs.length / pois.length) * 100) : 0}%`,
+                    }}
+                    transition={{ duration: 1, delay: 0.3 }}
+                  />
+                </div>
+                <div className="ink-divider my-5" />
+                <Link
+                  href="/map"
+                  className="inline-flex items-center gap-2 font-accent uppercase tracking-[0.25em] text-[11px] text-accent hover:text-foreground transition-colors group"
+                >
+                  Continue the ride
+                  <span className="transition-transform duration-500 group-hover:translate-x-1">→</span>
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* ─ RIGHT column ──────────────────────────────── */}
+            <div className="space-y-10">
+              {/* Roster */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.7 }}
+                className="border border-highlight/40 bg-surface/50 p-7 sm:p-8 ember-glow"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-accent"><Users className="size-5" /></span>
+                  <h2 className="font-heading uppercase tracking-[0.14em] text-foreground text-[15px]">
+                    The Roster
+                  </h2>
+                </div>
+
+                {leaderboard.length === 0 ? (
+                  <p className="font-serif italic text-muted text-[15px] py-4">
+                    The roll is being drawn. Check back at dawn.
+                  </p>
+                ) : (
+                  <ul className="divide-y divide-highlight/25">
+                    {leaderboard.map((entry, i) => {
+                      const isYou = entry.username === user.username;
+                      const seal = i <= 2;
+                      return (
+                        <li
+                          key={i}
+                          className={cn(
+                            "flex items-center gap-4 py-4 first:pt-0 last:pb-0 transition-colors",
+                            isYou && "-mx-4 px-4 rounded-sm bg-accent/[0.06]",
+                          )}
+                        >
+                          {/* Seal / rank cypher */}
+                          <div className="relative shrink-0">
+                            {seal ? (
+                              <div
+                                className={cn(
+                                  "size-10 rounded-full grid place-items-center rotate-[-8deg] shadow-md border-[3px]",
+                                  i === 0
+                                    ? "bg-[#7a2a18] border-[#3a1108]"
+                                    : i === 1
+                                      ? "bg-[#3d3226] border-[#1c1610]"
+                                      : "bg-[#4a2612] border-[#2a1409]",
+                                )}
+                              >
+                                <span className="font-heading text-foreground text-[13px]">
+                                  {i + 1}
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="size-10 grid place-items-center border border-highlight/40 text-muted">
+                                <span className="font-accent italic text-[11px] tracking-[0.15em]">
+                                  {String(i + 1).padStart(2, "0")}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div
+                              className={cn(
+                                "font-heading uppercase tracking-[0.08em] text-[15px] truncate",
+                                isYou ? "text-accent" : "text-foreground",
+                              )}
+                            >
+                              {entry.username}
+                              {isYou && (
+                                <span className="ml-2 font-accent italic text-[10px] tracking-[0.3em] uppercase text-accent/80">
+                                  · you
+                                </span>
+                              )}
+                            </div>
+                            <div className="font-accent italic text-muted text-[11px] tracking-[0.25em] uppercase">
+                              {entry.rank}
+                            </div>
+                          </div>
+
+                          <div className="text-right">
+                            <div className="font-heading text-foreground text-[16px] leading-none">
+                              {entry.points}
+                            </div>
+                            <div className="font-accent italic text-muted text-[10px] tracking-[0.2em] uppercase mt-1">
+                              karma
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </motion.div>
+
+              {/* Lore */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.7, delay: 0.05 }}
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-accent"><ScrollText className="size-5" /></span>
+                  <h2 className="font-heading uppercase tracking-[0.14em] text-foreground text-[15px]">
+                    Unlocked Lore
+                  </h2>
+                  <span className="ml-auto font-accent italic text-muted text-[11px] tracking-[0.3em] uppercase">
+                    {unlockedLore.length} chapter{unlockedLore.length === 1 ? "" : "s"}
+                  </span>
+                </div>
+
+                {unlockedLore.length === 0 ? (
+                  <div className="relative border border-dashed border-highlight/40 bg-surface/30 py-14 px-6 text-center">
+                    <span className="text-accent text-5xl leading-none">✦</span>
+                    <p className="mt-4 font-heading uppercase tracking-[0.14em] text-foreground text-[15px]">
+                      Your journal is blank
+                    </p>
+                    <p className="mt-2 font-serif italic text-muted text-[15px]">
+                      Every place has a page. Ride out to earn it.
+                    </p>
+                    <Link
+                      href="/map"
+                      className="mt-6 inline-block px-8 py-3 border border-accent bg-accent/10 hover:bg-accent hover:text-background transition-all duration-500 font-accent uppercase tracking-[0.3em] text-[11px] text-foreground ember-glow"
+                    >
+                      Find the roads
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {unlockedLore.map((poi, idx) => (
+                      <motion.article
+                        key={poi.id}
+                        initial={{ opacity: 0, y: 16 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-40px" }}
+                        transition={{ duration: 0.6, delay: 0.05 + idx * 0.06 }}
+                        className="relative grid sm:grid-cols-[220px_1fr] border border-highlight/40 bg-surface/50 overflow-hidden ember-glow"
+                      >
+                        {/* Wax stamp */}
+                        <span className="absolute -top-3 -right-3 z-20 size-12 rounded-full bg-[#7a2a18] border-[3px] border-[#3a1108] grid place-items-center font-heading text-foreground text-[11px] tracking-widest rotate-[9deg] shadow-md">
+                          +{poi.points}
+                        </span>
+
+                        <div className="relative h-40 sm:h-full min-h-[160px] vignette overflow-hidden border-b sm:border-b-0 sm:border-r border-highlight/40">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={poi.imageUrl}
+                            alt={poi.name}
+                            className="absolute inset-0 w-full h-full object-cover grayscale-[15%] sepia-[25%] brightness-[0.9]"
+                          />
+                          <span className="absolute top-3 left-3 font-accent italic text-[10px] tracking-[0.3em] uppercase bg-background/75 backdrop-blur-sm text-accent px-2.5 py-1 border border-accent/40">
+                            {poi.type}
+                          </span>
+                        </div>
+
+                        <div className="p-6 sm:p-7">
+                          <p className="font-accent italic text-accent text-[11px] tracking-[0.35em] uppercase mb-2">
+                            Chapter {String(idx + 1).padStart(2, "0")}
+                          </p>
+                          <h3 className="font-heading text-2xl uppercase tracking-[0.06em] text-foreground">
+                            {poi.name}
+                          </h3>
+                          <div className="ink-divider my-4 max-w-[160px]" />
+                          <p className="font-serif italic text-foreground/85 text-[15px] leading-[1.85]">
+                            {poi.lore}
+                          </p>
+                        </div>
+                      </motion.article>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        <Footer />
       </main>
     </PageTransition>
   );
