@@ -32,6 +32,7 @@ import {
 } from "@/lib/draft";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import { rememberCharter } from "@/lib/charter-tracking";
+import { EASE, DUR, STAGGER } from "@/lib/motion";
 
 type Props = { journey: Journey };
 
@@ -192,8 +193,8 @@ export default function CharterWizard({ journey }: Props) {
 
   return (
     <div ref={wizardRef} className="max-w-5xl mx-auto scroll-mt-28">
-      {/* Progress */}
-      <div className="flex items-center justify-center gap-2 sm:gap-4 mb-14">
+      {/* Progress — wax-medallion trail with ink connective line */}
+      <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-14 select-none">
         {STEPS.map((label, i) => {
           const done = i < step;
           const current = i === step;
@@ -202,36 +203,97 @@ export default function CharterWizard({ journey }: Props) {
           // has nothing to attach to.
           const reachable = i <= 1 || !!guide;
           return (
-            <div key={label} className="flex items-center gap-3 sm:gap-5">
+            <div key={label} className="flex items-center gap-1.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => reachable && goToStep(i)}
                 disabled={!reachable}
-                className="flex items-center gap-2.5 disabled:cursor-not-allowed"
+                aria-current={current ? "step" : undefined}
+                className="flex items-center gap-3 disabled:cursor-not-allowed group/step"
               >
-                <span
-                  className={[
-                    "w-8 h-8 flex items-center justify-center rounded-full border font-accent text-[13px] transition-colors",
-                    done
-                      ? "border-accent bg-accent text-background"
-                      : current
-                        ? "border-accent text-accent ember-glow"
-                        : "border-highlight/40 text-muted",
-                  ].join(" ")}
-                >
-                  {done ? <Check size={15} /> : i + 1}
+                <span className="relative inline-flex items-center justify-center shrink-0" style={{ width: 34, height: 34 }}>
+                  {/* Outer illumination ring — only under the active medallion */}
+                  {current && (
+                    <motion.span
+                      aria-hidden
+                      layoutId="wizard-step-halo"
+                      className="absolute inset-[-6px] rounded-full"
+                      style={{
+                        border: "1px solid rgba(201,146,42,0.35)",
+                        boxShadow: "0 0 22px -4px rgba(201,146,42,0.55)",
+                      }}
+                      transition={{ duration: DUR.base, ease: EASE }}
+                    />
+                  )}
+                  {/* Medallion */}
+                  <span
+                    className={[
+                      "relative inline-flex items-center justify-center rounded-full font-heading transition-all duration-500",
+                      current ? "ember-breath" : "",
+                    ].join(" ")}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      background: done
+                        ? "radial-gradient(120% 120% at 50% 25%, #7a2a18 0%, #3a1108 100%)"
+                        : current
+                          ? "radial-gradient(120% 120% at 50% 25%, rgba(201,146,42,0.28) 0%, rgba(28,21,16,0.9) 100%)"
+                          : "radial-gradient(120% 120% at 50% 25%, rgba(46,31,20,0.7) 0%, rgba(22,15,9,0.9) 100%)",
+                      border: done
+                        ? "1.5px solid #3a1108"
+                        : current
+                          ? "1.5px solid #C9922A"
+                          : "1px solid rgba(139,94,60,0.35)",
+                      color: done ? "#f0e2c2" : current ? "#F0E6D3" : "#7a6650",
+                      fontSize: 12,
+                      letterSpacing: "0.06em",
+                      transform: done ? "rotate(-6deg)" : "rotate(0deg)",
+                      boxShadow: done
+                        ? "0 2px 6px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08)"
+                        : current
+                          ? "inset 0 0 12px rgba(0,0,0,0.55), 0 0 14px -4px rgba(201,146,42,0.55)"
+                          : "inset 0 0 10px rgba(0,0,0,0.6)",
+                    }}
+                  >
+                    {done ? <Check size={14} strokeWidth={2.4} /> : i + 1}
+                  </span>
                 </span>
                 <span
                   className={[
-                    "font-accent uppercase tracking-[0.2em] text-[11px] hidden sm:inline",
-                    current ? "text-foreground" : "text-muted",
+                    "font-accent uppercase tracking-[0.24em] text-[11px] hidden sm:inline transition-colors duration-500",
+                    current
+                      ? "text-foreground"
+                      : done
+                        ? "text-accent/85"
+                        : reachable
+                          ? "text-muted group-hover/step:text-foreground/80"
+                          : "text-muted/60",
                   ].join(" ")}
                 >
                   {label}
                 </span>
               </button>
               {i < STEPS.length - 1 && (
-                <span className={`w-8 sm:w-14 h-px ${done ? "bg-accent" : "bg-highlight/40"}`} />
+                <span
+                  aria-hidden
+                  className="relative w-6 sm:w-14 h-px overflow-hidden"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, rgba(139,94,60,0.35) 0%, rgba(139,94,60,0.45) 50%, rgba(139,94,60,0.35) 100%)",
+                  }}
+                >
+                  <motion.span
+                    className="absolute inset-0 origin-left"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, rgba(201,146,42,0.9) 0%, rgba(201,146,42,0.5) 100%)",
+                      filter: "drop-shadow(0 0 4px rgba(201,146,42,0.55))",
+                    }}
+                    initial={false}
+                    animate={{ scaleX: done ? 1 : 0 }}
+                    transition={{ duration: DUR.base, ease: EASE }}
+                  />
+                </span>
               )}
             </div>
           );
@@ -243,10 +305,10 @@ export default function CharterWizard({ journey }: Props) {
         {step === 0 && (
           <motion.div
             key="vehicle"
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.4 }}
+            initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
+            transition={{ duration: DUR.base, ease: EASE }}
           >
             <StepHeading
               eyebrow="Step One"
@@ -258,18 +320,47 @@ export default function CharterWizard({ journey }: Props) {
                 const selected = v.id === draft.vehicleId;
                 const recommended = v.id === journey.requiredVehicle;
                 return (
-                  <button
+                  <motion.button
                     key={v.id}
                     type="button"
                     onClick={() => openVehicle(v)}
+                    whileHover={{ y: -2 }}
+                    animate={{ y: selected ? 1 : 0 }}
+                    transition={{ duration: DUR.fast, ease: EASE }}
                     className={[
-                      "text-left border p-6 transition-all duration-300 group/v",
+                      "relative text-left border p-6 transition-[background-color,border-color,box-shadow] duration-500 group/v overflow-hidden",
                       selected
                         ? "border-accent bg-accent/[0.08] ember-glow"
                         : "border-highlight/40 bg-surface/40 hover:border-accent/60",
                     ].join(" ")}
                   >
-                    <div className="flex items-center justify-between mb-3">
+                    {/* Inset ember bloom when selected */}
+                    {selected && (
+                      <motion.span
+                        aria-hidden
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: DUR.base, ease: EASE }}
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          background:
+                            "radial-gradient(120% 90% at 50% 0%, rgba(201,146,42,0.12), transparent 55%)",
+                        }}
+                      />
+                    )}
+                    {/* Wax seal — overhangs top-right when chosen */}
+                    {selected && (
+                      <motion.span
+                        aria-hidden
+                        initial={{ scale: 0.4, opacity: 0, rotate: -30 }}
+                        animate={{ scale: 1, opacity: 1, rotate: -8 }}
+                        transition={{ duration: DUR.fast, ease: EASE }}
+                        className="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full bg-[#7a2a18] border-2 border-[#3a1108] flex items-center justify-center text-[#f0e2c2] shadow-[0_2px_8px_rgba(0,0,0,0.6)] z-20"
+                      >
+                        <Check size={14} strokeWidth={2.4} />
+                      </motion.span>
+                    )}
+                    <div className="relative flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <span className="text-accent text-2xl leading-none">{v.sigil}</span>
                         <h3 className="font-heading uppercase tracking-[0.06em] text-[18px] text-foreground">
@@ -277,8 +368,8 @@ export default function CharterWizard({ journey }: Props) {
                         </h3>
                       </div>
                       {selected ? (
-                        <span className="flex items-center gap-1.5 font-accent uppercase tracking-[0.18em] text-[9px] text-accent">
-                          <Check size={13} /> Chosen
+                        <span className="flex items-center gap-1.5 font-accent uppercase tracking-[0.22em] text-[9px] text-accent">
+                          Chosen
                         </span>
                       ) : (
                         recommended && (
@@ -288,19 +379,19 @@ export default function CharterWizard({ journey }: Props) {
                         )
                       )}
                     </div>
-                    <p className="text-foreground/80 text-[14px] font-serif leading-relaxed mb-4">
+                    <p className="relative text-foreground/80 text-[14px] font-serif leading-relaxed mb-4">
                       {v.blurb}
                     </p>
-                    <div className="grid grid-cols-2 gap-y-2 gap-x-3 font-accent text-[10px] tracking-[0.12em] uppercase text-muted">
+                    <div className="relative grid grid-cols-2 gap-y-2 gap-x-3 font-accent text-[10px] tracking-[0.12em] uppercase text-muted">
                       <span>Terrain · <span className="text-foreground/80 normal-case font-serif tracking-normal">{v.terrain.split(",")[0]}</span></span>
                       <span>Seats · <span className="text-foreground/80 normal-case font-serif tracking-normal">{v.passengers.split("+")[0]}</span></span>
                       <span>Comfort · <span className="text-foreground/80 normal-case font-serif tracking-normal">{v.comfort}</span></span>
                       <span>Price · <span className="text-accent normal-case font-serif tracking-normal">{v.priceImpact}</span></span>
                     </div>
-                    <p className="mt-4 pt-3 border-t border-highlight/25 font-accent uppercase tracking-[0.22em] text-[10px] text-accent group-hover/v:translate-x-1 transition-transform duration-300">
+                    <p className="relative mt-4 pt-3 border-t border-highlight/25 font-accent uppercase tracking-[0.22em] text-[10px] text-accent group-hover/v:translate-x-1 transition-transform duration-300">
                       {selected ? "View details" : "View & choose"} →
                     </p>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -311,10 +402,10 @@ export default function CharterWizard({ journey }: Props) {
         {step === 1 && (
           <motion.div
             key="guide"
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.4 }}
+            initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
+            transition={{ duration: DUR.base, ease: EASE }}
           >
             <StepHeading
               eyebrow="Step Two"
@@ -335,7 +426,7 @@ export default function CharterWizard({ journey }: Props) {
                     key={level}
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: ti * 0.08, ease: "easeOut" }}
+                    transition={{ duration: DUR.base, delay: ti * STAGGER.tight, ease: EASE }}
                     className="relative flex flex-col sm:flex-row gap-0 overflow-hidden border"
                     style={{
                       borderColor: eligible
@@ -449,10 +540,10 @@ export default function CharterWizard({ journey }: Props) {
         {step === 2 && (
           <motion.div
             key="comforts"
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.4 }}
+            initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
+            transition={{ duration: DUR.base, ease: EASE }}
           >
             <StepHeading
               eyebrow="Step Three"
@@ -472,10 +563,10 @@ export default function CharterWizard({ journey }: Props) {
         {step === 3 && (
           <motion.div
             key="summary"
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.4 }}
+            initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
+            transition={{ duration: DUR.base, ease: EASE }}
           >
             <StepHeading
               eyebrow="Step Four"
@@ -505,21 +596,37 @@ export default function CharterWizard({ journey }: Props) {
             type="button"
             onClick={() => goToStep(step - 1)}
             disabled={step === 0}
-            className="px-6 sm:px-8 py-4 border border-highlight/50 hover:border-accent disabled:opacity-30 disabled:hover:border-highlight/50 transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-muted hover:text-foreground"
+            className="group/back relative px-6 sm:px-8 py-4 border border-highlight/50 hover:border-accent disabled:opacity-30 disabled:hover:border-highlight/50 transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-muted hover:text-foreground"
           >
-            ← Back
+            <span className="inline-flex items-center gap-2">
+              <span className="inline-block transition-transform duration-500 group-hover/back:-translate-x-1">←</span>
+              <span className="relative">
+                Back
+                <span
+                  aria-hidden
+                  className="absolute left-0 -bottom-1 h-px w-full origin-right scale-x-0 group-hover/back:scale-x-100 group-hover/back:origin-left transition-transform duration-500"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, transparent 0%, rgba(201,146,42,0.55) 40%, rgba(201,146,42,0.55) 60%, transparent 100%)",
+                  }}
+                />
+              </span>
+            </span>
           </button>
           <button
             type="button"
             onClick={() => goToStep(step + 1)}
             disabled={(step === 0 && !vehicle) || (step >= 1 && !guide)}
-            className="px-8 sm:px-10 py-4 border border-accent bg-accent/15 hover:bg-accent hover:text-background disabled:opacity-40 disabled:hover:bg-accent/15 disabled:hover:text-foreground transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
+            className="group/next px-8 sm:px-10 py-4 border border-accent bg-accent/15 hover:bg-accent hover:text-background disabled:opacity-40 disabled:hover:bg-accent/15 disabled:hover:text-foreground transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
           >
-            {step === 0
-              ? "Choose your guide →"
-              : step === 1
-                ? "Comforts of the charter →"
-                : "Review the charter →"}
+            <span className="inline-flex items-center gap-2.5">
+              {step === 0
+                ? "Choose your guide"
+                : step === 1
+                  ? "Comforts of the charter"
+                  : "Review the charter"}
+              <span className="inline-block transition-transform duration-500 group-hover/next:translate-x-1">→</span>
+            </span>
           </button>
         </div>
       )}
@@ -648,21 +755,29 @@ function Modal({
         >
           <div className="absolute inset-0 bg-[#0D0A07]/90 backdrop-blur-sm" />
           <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
+            initial={{ opacity: 0, y: 28, scale: 0.96, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: 14, scale: 0.97, filter: "blur(6px)" }}
+            transition={{ duration: DUR.base, ease: EASE }}
             onClick={(e) => e.stopPropagation()}
             className={`relative z-10 w-full ${maxW} max-h-[90vh] overflow-y-auto bg-background border border-accent/30 ember-glow`}
             data-lenis-prevent
           >
+            {/* Wax-seal close */}
             <button
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="absolute top-4 right-4 z-20 text-foreground/80 hover:text-accent bg-background/70 border border-highlight/40 p-2 transition-colors"
+              className="absolute top-3.5 right-3.5 z-20 w-9 h-9 rounded-full flex items-center justify-center text-[#f0e2c2] hover:text-white transition-all duration-300 hover:rotate-[6deg] hover:scale-[1.06]"
+              style={{
+                background:
+                  "radial-gradient(120% 120% at 50% 22%, #7a2a18 0%, #3a1108 100%)",
+                border: "2px solid #3a1108",
+                boxShadow:
+                  "0 2px 8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.1)",
+              }}
             >
-              <X size={18} />
+              <X size={15} strokeWidth={2.4} />
             </button>
             {children}
           </motion.div>
@@ -871,7 +986,7 @@ function GuideTile({
       title={`${guide.name} · ${guide.level}`}
       initial={{ opacity: 0, scale: 0.94 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.35, delay: index * 0.05, ease: "easeOut" }}
+      transition={{ duration: DUR.fast, delay: index * 0.05, ease: EASE }}
       whileHover={{ y: -4 }}
       className="group/tile relative block w-[100px] sm:w-[118px] cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
     >
@@ -1059,20 +1174,47 @@ function ComfortsStep({
           {ACCOMMODATION_OPTIONS.map((opt) => {
             const active = draft.accommodation === opt.id;
             return (
-              <button
+              <motion.button
                 key={opt.id}
                 type="button"
                 onClick={() => onPatch({ accommodation: opt.id })}
+                whileHover={{ y: -1 }}
+                animate={{ y: active ? 1 : 0 }}
+                transition={{ duration: DUR.fast, ease: EASE }}
                 className={[
-                  "w-full text-left border p-5 transition-all duration-300",
+                  "relative w-full text-left border p-5 transition-[background-color,border-color,box-shadow] duration-500 overflow-hidden",
                   active
                     ? "border-accent bg-accent/[0.08] ember-glow"
                     : "border-highlight/40 bg-surface/40 hover:border-accent/60",
                 ].join(" ")}
               >
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <h3 className="font-heading uppercase tracking-[0.06em] text-[15px] text-foreground">
+                {active && (
+                  <motion.span
+                    aria-hidden
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: DUR.base, ease: EASE }}
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background:
+                        "radial-gradient(120% 90% at 0% 0%, rgba(201,146,42,0.12), transparent 55%)",
+                    }}
+                  />
+                )}
+                <div className="relative flex items-start justify-between gap-3 mb-2">
+                  <h3 className="font-heading uppercase tracking-[0.06em] text-[15px] text-foreground flex items-center gap-2">
                     {opt.label}
+                    {active && (
+                      <motion.span
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: DUR.fast, ease: EASE }}
+                        className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-accent text-background"
+                        aria-hidden
+                      >
+                        <Check size={10} strokeWidth={3} />
+                      </motion.span>
+                    )}
                   </h3>
                   <span
                     className={[
@@ -1085,10 +1227,10 @@ function ComfortsStep({
                     {opt.feeHint}
                   </span>
                 </div>
-                <p className="text-foreground/75 text-[14px] font-serif italic leading-relaxed">
+                <p className="relative text-foreground/75 text-[14px] font-serif italic leading-relaxed">
                   {opt.blurb}
                 </p>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -1227,21 +1369,70 @@ function SummaryStep({
   if (sent) {
     return (
       <div className="text-center py-12 max-w-xl mx-auto">
-        <div className="text-accent text-6xl mb-5 leading-none">✦</div>
-        <h3 className="font-heading text-3xl uppercase tracking-[0.1em] text-foreground">
+        {/* Wax-seal stamp — press-down entrance */}
+        <motion.div
+          initial={{ scale: 1.9, opacity: 0, rotate: -22, y: -14 }}
+          animate={{ scale: 1, opacity: 1, rotate: -8, y: 0 }}
+          transition={{ duration: DUR.base, ease: EASE, delay: 0.05 }}
+          className="mx-auto mb-8 relative"
+          style={{ width: 108, height: 108 }}
+        >
+          {/* Outer halo */}
+          <motion.span
+            aria-hidden
+            initial={{ scale: 0.4, opacity: 0 }}
+            animate={{ scale: [0.4, 1.35, 1], opacity: [0, 0.7, 0] }}
+            transition={{ duration: 1.2, ease: EASE, delay: 0.35 }}
+            className="absolute inset-0 rounded-full"
+            style={{
+              border: "1px solid rgba(201,146,42,0.6)",
+              boxShadow: "0 0 24px rgba(201,146,42,0.4)",
+            }}
+          />
+          <span
+            className="relative w-full h-full rounded-full flex items-center justify-center font-heading text-[#f0e2c2] text-3xl"
+            style={{
+              background:
+                "radial-gradient(120% 120% at 50% 20%, #a03720 0%, #7a2a18 45%, #3a1108 100%)",
+              border: "3px solid #3a1108",
+              boxShadow:
+                "0 12px 32px rgba(0,0,0,0.6), inset 0 2px 0 rgba(255,255,255,0.12), inset 0 0 22px rgba(0,0,0,0.5)",
+              letterSpacing: "0.08em",
+            }}
+          >
+            ✦
+          </span>
+        </motion.div>
+        <motion.h3
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: DUR.base, ease: EASE, delay: 0.35 }}
+          className="font-heading text-3xl uppercase tracking-[0.1em] text-foreground ember-text-glow candle-flicker"
+        >
           The raven is away
-        </h3>
-        <p className="mt-5 text-foreground/85 font-serif italic text-[18px] leading-relaxed">
+        </motion.h3>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: DUR.base, ease: EASE, delay: 0.45 }}
+          className="mt-5 text-foreground/85 font-serif italic text-[18px] leading-relaxed"
+        >
           Your charter request reached the Guild. A guide — not a sales desk —
           will write back. You can watch the road from your reference page,
           and the bell at the top will light when there is news.
-        </p>
-        <div className="mt-10 flex flex-wrap justify-center gap-3">
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: DUR.base, ease: EASE, delay: 0.55 }}
+          className="mt-10 flex flex-wrap justify-center gap-3"
+        >
           <Link
             href={sentId ? `/charter/track/${sentId}` : "/charter/me"}
-            className="inline-block px-10 py-4 border border-accent bg-accent/10 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
+            className="group/track inline-flex items-center gap-2.5 px-10 py-4 border border-accent bg-accent/10 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.3em] uppercase text-foreground ember-glow"
           >
             Track my charter
+            <span className="inline-block transition-transform duration-500 group-hover/track:translate-x-1">→</span>
           </Link>
           <Link
             href="/journeys"
@@ -1249,13 +1440,24 @@ function SummaryStep({
           >
             Explore other roads
           </Link>
-        </div>
+        </motion.div>
         {sentId && (
-          <p className="mt-10 font-accent italic text-muted text-[12px] tracking-[0.2em] uppercase">
-            Reference · {sentId}
-            <br />
-            Keep this id if you need to reach the charter from another device.
-          </p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: DUR.slow, ease: EASE, delay: 0.7 }}
+            className="mt-12 inline-block"
+          >
+            <p className="font-accent uppercase tracking-[0.28em] text-[10px] text-muted mb-2">
+              Reference seal
+            </p>
+            <p className="font-heading text-accent text-[15px] tracking-[0.18em] px-5 py-2.5 border border-accent/40 ember-glow bg-surface/40">
+              {sentId}
+            </p>
+            <p className="mt-3 font-accent italic text-muted text-[11px] tracking-[0.06em] leading-relaxed max-w-sm mx-auto">
+              Keep this id if you need to reach the charter from another device.
+            </p>
+          </motion.div>
         )}
       </div>
     );
@@ -1338,20 +1540,31 @@ function SummaryStep({
                 onPatch({ travelers: Math.max(1, draft.travelers - 1) })
               }
               disabled={draft.travelers <= 1}
-              className="w-10 h-10 flex items-center justify-center border border-highlight/50 hover:border-accent text-foreground transition-colors disabled:opacity-30 disabled:hover:border-highlight/50"
+              className="w-10 h-10 flex items-center justify-center border border-highlight/50 hover:border-accent hover:text-accent text-foreground transition-colors disabled:opacity-30 disabled:hover:border-highlight/50 disabled:hover:text-foreground"
               aria-label="Fewer travelers"
             >
               <Minus size={16} />
             </button>
-            <span className="font-heading text-foreground text-[24px] w-12 text-center tabular-nums">
-              {draft.travelers}
+            <span className="relative w-12 h-10 flex items-center justify-center">
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span
+                  key={draft.travelers}
+                  initial={{ opacity: 0, y: 6, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -6, filter: "blur(4px)" }}
+                  transition={{ duration: DUR.fast, ease: EASE }}
+                  className="absolute font-heading text-foreground text-[26px] tabular-nums ember-text-glow"
+                >
+                  {draft.travelers}
+                </motion.span>
+              </AnimatePresence>
             </span>
             <button
               type="button"
               onClick={() =>
                 onPatch({ travelers: Math.min(24, draft.travelers + 1) })
               }
-              className="w-10 h-10 flex items-center justify-center border border-highlight/50 hover:border-accent text-foreground transition-colors"
+              className="w-10 h-10 flex items-center justify-center border border-highlight/50 hover:border-accent hover:text-accent text-foreground transition-colors"
               aria-label="More travelers"
             >
               <Plus size={16} />
@@ -1401,9 +1614,15 @@ function SummaryStep({
           type="button"
           onClick={onSubmit}
           disabled={!completeness.ready}
-          className="w-full px-10 py-5 border border-accent bg-accent/15 hover:bg-accent hover:text-background disabled:opacity-40 disabled:hover:bg-accent/15 disabled:hover:text-foreground transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-foreground ember-glow"
+          className={[
+            "group/send w-full px-10 py-5 border border-accent bg-accent/15 hover:bg-accent hover:text-background disabled:opacity-40 disabled:hover:bg-accent/15 disabled:hover:text-foreground transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-foreground ember-glow",
+            completeness.ready ? "wax-pulse" : "",
+          ].join(" ")}
         >
-          Send the charter raven
+          <span className="inline-flex items-center gap-3">
+            Send the charter raven
+            <span className="inline-block transition-transform duration-500 group-hover/send:translate-x-1">✦</span>
+          </span>
         </button>
         {!completeness.ready && completeness.missing.length > 0 && (
           <p className="font-accent italic text-highlight text-[12px] tracking-[0.08em] leading-relaxed">
@@ -1449,7 +1668,7 @@ function BuildTestimonial({ step }: { step: number }) {
       key={step}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
+      transition={{ duration: DUR.base, delay: 0.2, ease: EASE }}
       className="mt-16 max-w-xl mx-auto border-l-2 border-accent/40 pl-6"
     >
       <blockquote className="font-serif italic text-foreground/85 text-[16px] leading-[1.7]">

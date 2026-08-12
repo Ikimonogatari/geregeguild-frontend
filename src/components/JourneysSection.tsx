@@ -108,9 +108,15 @@ export default function JourneysSection() {
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featured.map((j, i) => (
-            <JourneyCard key={j.slug} journey={j} index={i} />
-          ))}
+          {featured.length === 0
+            ? // Journeys hydrate client-side. Show parchment-toned placeholders
+              // at the correct card dimensions so the grid never flashes empty.
+              Array.from({ length: 6 }).map((_, i) => (
+                <JourneyCardSkeleton key={i} />
+              ))
+            : featured.map((j, i) => (
+                <JourneyCard key={j.slug} journey={j} index={i} />
+              ))}
         </div>
 
         <motion.div
@@ -135,5 +141,37 @@ export default function JourneysSection() {
         </motion.div>
       </div>
     </section>
+  );
+}
+
+/* Parchment-toned placeholder — matches JourneyCard's outer dimensions so the
+   grid holds shape while journeys hydrate. Warm ember shimmer instead of the
+   generic neutral shadcn skeleton. */
+function JourneyCardSkeleton() {
+  return (
+    <div
+      aria-hidden
+      className="relative bg-surface/60 border border-highlight/30 ember-glow overflow-hidden flex flex-col"
+    >
+      <div className="skeleton-parchment h-[260px] sm:h-[300px] lg:h-[340px] w-full" />
+      <div className="p-6 flex flex-col flex-1 gap-4">
+        <div className="skeleton-parchment h-6 w-4/5" />
+        <div className="skeleton-parchment h-4 w-full" />
+        <div className="skeleton-parchment h-4 w-11/12" />
+        <div className="ink-divider my-3" />
+        <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-1.5">
+              <div className="skeleton-parchment h-2 w-14" />
+              <div className="skeleton-parchment h-3.5 w-20" />
+            </div>
+          ))}
+        </div>
+        <div className="mt-auto pt-4 border-t border-highlight/30 flex items-center justify-between">
+          <div className="skeleton-parchment h-3 w-24" />
+          <div className="skeleton-parchment h-3 w-28" />
+        </div>
+      </div>
+    </div>
   );
 }

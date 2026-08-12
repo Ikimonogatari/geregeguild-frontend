@@ -143,16 +143,16 @@ export default function GuildSection() {
           className="mt-32 text-center flex flex-col sm:flex-row gap-5 justify-center items-center"
         >
           <Link
-            href="/guides"
+            href="/journeys"
             className="px-12 py-5 border border-accent bg-accent/15 hover:bg-accent hover:text-background transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-foreground ember-glow"
           >
-            Open the Roster
+            Begin a Charter
           </Link>
           <Link
-            href="/map"
+            href="/guides"
             className="px-12 py-5 border border-highlight/50 hover:border-accent transition-all duration-500 font-accent text-[12px] tracking-[0.35em] uppercase text-muted hover:text-foreground"
           >
-            See the Map
+            Meet the Guides
           </Link>
         </motion.div>
       </div>

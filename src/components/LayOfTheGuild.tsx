@@ -3,7 +3,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import {
   DUR,
-  EASE,
   STAGGER,
   VIEWPORT,
   revealVariants,
@@ -83,34 +82,38 @@ export default function LayOfTheGuild() {
 
         {/* Text panels — overlaid on the pinned video, each one a viewport beat. */}
         <div className="absolute inset-0 z-10">
-          {/* Panel I — title beat */}
+          {/* Panel I — title beat. Announces the section before the
+              stanza cards begin scrolling in below it. Uses the shared
+              whileInView pattern so the reveal fires reliably. */}
           <div className="h-screen flex items-center justify-center px-6">
             <motion.div
               variants={staggerParent(STAGGER.base, STAGGER.base)}
               initial="hidden"
               whileInView="visible"
               viewport={VIEWPORT}
-              className="max-w-3xl mx-auto text-center"
+              className="relative max-w-3xl w-full mx-auto text-center"
             >
               <motion.p
                 variants={revealVariants("rise", DUR.base)}
-                className="font-accent italic text-accent text-[13px] tracking-[0.4em] uppercase mb-6"
+                className="font-accent italic text-accent text-[13px] tracking-[0.4em] uppercase mb-8"
               >
                 The Lay of the Guild
               </motion.p>
               <motion.h2
                 variants={revealVariants("blur", DUR.slow)}
-                className="font-heading text-4xl sm:text-6xl md:text-7xl uppercase tracking-[0.1em] text-foreground ember-text-glow"
+                className="font-heading text-5xl sm:text-7xl md:text-8xl uppercase tracking-[0.14em] text-foreground ember-text-glow leading-[1.05]"
               >
-                A short prologue
+                A short
+                <br />
+                prologue
               </motion.h2>
               <motion.div
                 variants={revealVariants("wipe", DUR.base)}
-                className="ink-divider mx-auto mt-10 max-w-md"
+                className="ink-divider mx-auto mt-12 max-w-md"
               />
               <motion.p
                 variants={revealVariants("rise", DUR.base)}
-                className="mt-12 font-accent italic text-muted text-[12px] tracking-[0.5em] uppercase"
+                className="mt-10 font-accent italic text-muted text-[12px] tracking-[0.5em] uppercase"
               >
                 — scroll —
               </motion.p>
@@ -118,35 +121,11 @@ export default function LayOfTheGuild() {
           </div>
 
           {/* Panels II–V — one stanza per viewport beat. h-screen so
-              no two stanzas can ever share the viewport at once. */}
+              no two stanzas can ever share the viewport at once. Each
+              stanza is a parchment card that fades and rises in as it
+              enters the viewport. */}
           {STANZAS.map((line, i) => (
-            <div
-              key={i}
-              className="h-screen flex items-center justify-center px-6"
-            >
-              <motion.div
-                variants={staggerParent(STAGGER.base)}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "0px 0px -25% 0px" }}
-                className="max-w-4xl mx-auto text-center"
-              >
-                {/* Tiny chapter ordinal — Roman numeral marks the beat */}
-                <motion.p
-                  variants={revealVariants("fade", DUR.base)}
-                  className="font-accent italic text-accent/70 text-[11px] tracking-[0.6em] uppercase mb-8"
-                >
-                  · {toRoman(i + 1)} ·
-                </motion.p>
-                <motion.p
-                  variants={revealVariants("blur", DUR.slow)}
-                  transition={{ duration: DUR.slow, ease: EASE }}
-                  className="font-serif italic text-foreground text-[22px] sm:text-[28px] md:text-[34px] leading-[1.55]"
-                >
-                  {line}
-                </motion.p>
-              </motion.div>
-            </div>
+            <StanzaCard key={i} index={i} line={line} />
           ))}
 
           {/* Final beat — closing ornament */}
@@ -184,3 +163,53 @@ export default function LayOfTheGuild() {
 function toRoman(n: number) {
   return ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"][n - 1] ?? String(n);
 }
+
+/* ────────────────────────────────────────────────────────────
+   StanzaCard — one stanza rendered as a parchment card. Reveals
+   with a simple whileInView rise+fade — the shared house pattern
+   used everywhere else on the site, so it fires reliably.
+   ──────────────────────────────────────────────────────────── */
+function StanzaCard({ index, line }: { index: number; line: string }) {
+  return (
+    <div className="h-screen flex items-center justify-center px-6">
+      <motion.div
+        variants={staggerParent(STAGGER.base)}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "0px 0px -25% 0px" }}
+        className="relative max-w-2xl w-full mx-auto"
+      >
+        <motion.div
+          variants={revealVariants("rise", DUR.slow)}
+          className="relative bg-surface/80 backdrop-blur-md border border-accent/25 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] card-firelight px-8 py-14 sm:px-14 sm:py-20 text-center"
+        >
+          {/* Corner tacks — small ember dots at each corner */}
+          <span className="absolute top-2 left-2 h-1.5 w-1.5 rounded-full bg-accent/60" />
+          <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-accent/60" />
+          <span className="absolute bottom-2 left-2 h-1.5 w-1.5 rounded-full bg-accent/60" />
+          <span className="absolute bottom-2 right-2 h-1.5 w-1.5 rounded-full bg-accent/60" />
+
+          <motion.p
+            variants={revealVariants("fade", DUR.base)}
+            className="font-accent italic text-accent/80 text-[11px] tracking-[0.6em] uppercase mb-8"
+          >
+            · {toRoman(index + 1)} ·
+          </motion.p>
+
+          <motion.div
+            variants={revealVariants("wipe", DUR.base)}
+            className="ink-divider mx-auto mb-10 max-w-[8rem]"
+          />
+
+          <motion.p
+            variants={revealVariants("blur", DUR.slow)}
+            className="font-serif italic text-foreground text-[20px] sm:text-[26px] md:text-[30px] leading-[1.6]"
+          >
+            {line}
+          </motion.p>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+

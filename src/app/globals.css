@@ -138,6 +138,28 @@ h1, h2, h3, h4, h5, h6 {
     0 24px 60px -20px rgba(0, 0, 0, 0.7);
 }
 
+/* Global focus-visible — ember gold, warm glow, square to match the parchment
+   frames. Applied to any focusable element that doesn't already opt out. */
+:focus-visible {
+  outline: 1px solid rgba(201, 146, 42, 0.9);
+  outline-offset: 3px;
+  box-shadow:
+    0 0 0 1px rgba(201, 146, 42, 0.35),
+    0 0 14px -2px rgba(201, 146, 42, 0.55);
+  border-radius: 0;
+}
+/* Text inputs and textareas get a warmer inset lift on focus rather than an
+   outer ring — the ring would clash with the field's own border. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 1px rgba(201, 146, 42, 0.6),
+    0 0 22px -6px rgba(201, 146, 42, 0.55),
+    inset 0 0 18px -12px rgba(201, 146, 42, 0.6);
+}
+
 .ember-text-glow {
   text-shadow:
     0 0 18px rgba(201, 146, 42, 0.35),
@@ -328,6 +350,29 @@ main, footer {
   filter: drop-shadow(0 0 8px rgba(201, 146, 42, 0.5));
 }
 
+/* Parchment shimmer — warm loading state that sweeps a faint ember
+   band across a placeholder. Used on brand skeleton surfaces. */
+@keyframes parchment-shimmer {
+  0%   { background-position: -160% 0; }
+  100% { background-position: 260% 0; }
+}
+.skeleton-parchment {
+  position: relative;
+  background:
+    linear-gradient(
+      100deg,
+      rgba(46, 31, 20, 0.55) 0%,
+      rgba(139, 94, 60, 0.18) 45%,
+      rgba(201, 146, 42, 0.22) 50%,
+      rgba(139, 94, 60, 0.18) 55%,
+      rgba(46, 31, 20, 0.55) 100%
+    ),
+    rgba(46, 31, 20, 0.6);
+  background-size: 220% 100%;
+  background-position: -160% 0;
+  animation: parchment-shimmer 2.6s ease-in-out infinite;
+}
+
 /* Respect users who prefer reduced motion — kill the ambient loops */
 @media (prefers-reduced-motion: reduce) {
   .candle-flicker,
@@ -335,7 +380,8 @@ main, footer {
   .mote,
   .wax-pulse,
   .ink-draw,
-  .title-shimmer::after {
+  .title-shimmer::after,
+  .skeleton-parchment {
     animation: none !important;
   }
 }

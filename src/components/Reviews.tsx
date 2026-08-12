@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import {
@@ -151,6 +152,24 @@ export default function Reviews() {
               </div>
             </motion.article>
           ))}
+        </motion.div>
+
+        {/* Conversion thread — a quiet tail that pulls the reader onward */}
+        <motion.div
+          variants={revealVariants("fade", DUR.base)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT}
+          className="mt-16 text-center"
+        >
+          <Link
+            href="/journeys"
+            className="group inline-flex items-center gap-3 font-accent italic text-accent/90 hover:text-accent text-[12px] tracking-[0.4em] uppercase transition-colors duration-500"
+          >
+            <span className="h-px w-8 bg-accent/50 transition-all duration-500 group-hover:w-12 group-hover:bg-accent" />
+            Begin a Charter
+            <span className="h-px w-8 bg-accent/50 transition-all duration-500 group-hover:w-12 group-hover:bg-accent" />
+          </Link>
         </motion.div>
       </div>
     </section>
