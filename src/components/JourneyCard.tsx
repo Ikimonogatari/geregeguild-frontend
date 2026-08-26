@@ -24,6 +24,10 @@ type Props = {
 export default function JourneyCard({ journey, index = 0 }: Props) {
   const router = useRouter();
   const [hovered, setHovered] = useState(false);
+  // hasHovered latches true on the first mouseEnter and stays true. The map
+  // is mounted from that point onward and toggled with opacity — see the
+  // hover flap note below on the map wrapper.
+  const [hasHovered, setHasHovered] = useState(false);
   const isCustom = journey.category === "Custom";
   const route = routeForJourney(journey.slug);
   const mapLabel = `${journey.days} days · ${journey.distanceKm} km`;
@@ -62,7 +66,10 @@ export default function JourneyCard({ journey, index = 0 }: Props) {
         type="button"
         onClick={() => router.push(`/journeys/${journey.slug}`)}
         onMouseMove={handleMove}
-        onMouseEnter={() => setHovered(true)}
+        onMouseEnter={() => {
+          setHovered(true);
+          setHasHovered(true);
+        }}
         onMouseLeave={handleLeave}
         initial={{ opacity: 0, y: 36 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -109,19 +116,22 @@ export default function JourneyCard({ journey, index = 0 }: Props) {
           />
 
           {/* Real geography (OpenTopoMap tiles — terrain shading + contours,
-              not a road map). Treated to read as an aged chart. Mounted
-              only on hover. The route polyline + named waypoints sit on
-              top of the actual cartography. */}
-          {hovered && (
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.45, ease: EASE }}
+              not a road map). Treated to read as an aged chart.
+
+              Lazy-mount on FIRST hover, then keep mounted for the lifetime
+              of the card and toggle visibility with opacity/pointer-events.
+              Unmounting on every hover-out was tearing down the map + tiles
+              + polyline animation, causing the "goes blank and shows"
+              flicker on rapid hover flap. */}
+          {hasHovered && (
+            <div
+              className={[
+                "absolute inset-0 transition-opacity duration-300 ease-out",
+                hovered ? "opacity-100" : "opacity-0 pointer-events-none",
+              ].join(" ")}
             >
               <LeafletMapPlate route={route} label={mapLabel} title={journey.title} />
-            </motion.div>
+            </div>
           )}
 
           {/* Bottom fade — keeps the badge/tag rows readable in both states */}

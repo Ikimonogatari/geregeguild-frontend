@@ -4,6 +4,16 @@ import { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { EASE, DUR } from "@/lib/motion";
+import { JOURNEY_CATEGORIES, CATEGORY_SIGIL } from "@/lib/journeys";
+
+// Hero tag picker — the user's first action. Nine journey categories
+// with sigils, each links to /journeys?category=<name> so the tag click
+// pre-filters the journeys catalogue in one step.
+const HERO_TAGS = JOURNEY_CATEGORIES.map((cat) => ({
+  name: cat,
+  sigil: CATEGORY_SIGIL[cat],
+  href: `/journeys?category=${encodeURIComponent(cat)}`,
+}));
 
 // Deterministic dust motes — static seeds so SSR/CSR match
 const MOTES = [
@@ -223,40 +233,36 @@ export default function Hero() {
             className="ink-divider mx-auto mt-7 sm:mt-9 max-w-[280px] sm:max-w-md"
           />
 
+          {/* Prompt — small, one line. */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.7 }}
-            className="mt-8 sm:mt-10 text-foreground/90 text-[15px] sm:text-[17px] md:text-[20px] max-w-md sm:max-w-xl md:max-w-2xl mx-auto italic font-serif leading-relaxed"
+            transition={{ duration: 0.9, delay: 0.8 }}
+            className="mt-10 sm:mt-12 font-accent italic text-muted text-[10px] sm:text-[11px] tracking-[0.5em] uppercase"
           >
-            First choose the Mongolia you want to meet. Then we build the full
-            charter around it — the route, the machine, the rhythm, and the
-            person who knows the way.
+            Choose the road that calls you
           </motion.p>
 
+          {/* Tag picker — pill-style categories with sigil + name. Each tag
+              pre-filters the /journeys catalogue via the ?category param. */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.95 }}
-            className="mt-10 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center max-w-sm sm:max-w-none mx-auto"
+            transition={{ duration: 1, delay: 0.95, ease: EASE }}
+            className="mt-6 sm:mt-7 flex flex-wrap gap-2 sm:gap-2.5 justify-center max-w-3xl mx-auto"
           >
-            <Link
-              href="/discover"
-              className="group relative overflow-hidden px-8 sm:px-10 py-4 sm:py-5 border border-accent bg-accent/15 font-accent text-[11px] sm:text-[12px] tracking-[0.3em] sm:tracking-[0.35em] uppercase text-foreground ember-glow text-center transition-colors duration-500 hover:text-background"
-            >
-              {/* Ember fill — sweeps up from the wax-seal base on hover */}
-              <span
-                aria-hidden
-                className="absolute inset-0 z-0 origin-bottom scale-y-0 bg-accent transition-transform duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:scale-y-100"
-              />
-              <span className="relative z-10">Begin Your Charter</span>
-            </Link>
-            <Link
-              href="/journeys"
-              className="group relative px-8 sm:px-10 py-4 sm:py-5 border border-foreground/25 hover:border-accent transition-all duration-500 font-accent text-[11px] sm:text-[12px] tracking-[0.3em] sm:tracking-[0.35em] uppercase text-foreground/80 hover:text-foreground text-center"
-            >
-              <span className="relative z-10">Browse the Roads</span>
-            </Link>
+            {HERO_TAGS.map((tag) => (
+              <Link
+                key={tag.name}
+                href={tag.href}
+                className="group inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 border border-foreground/25 hover:border-accent/80 hover:bg-accent/10 transition-colors duration-300 font-accent text-[11px] sm:text-[12px] tracking-[0.22em] uppercase text-foreground/85 hover:text-foreground backdrop-blur-sm bg-background/25"
+              >
+                <span className="text-accent text-[13px] sm:text-[14px] leading-none group-hover:[text-shadow:0_0_10px_rgba(201,146,42,0.85)] transition-[text-shadow] duration-300">
+                  {tag.sigil}
+                </span>
+                <span>{tag.name}</span>
+              </Link>
+            ))}
           </motion.div>
         </div>
       </motion.div>

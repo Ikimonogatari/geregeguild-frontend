@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type L from "leaflet";
 
 /* ────────────────────────────────────────────────────────────
@@ -27,6 +27,9 @@ export function useRoadOrCurve(positions: L.LatLngTuple[]): {
   // Initialise ready=true for the degenerate <2-waypoint case so we
   // never synchronously call setState inside the effect body.
   const [timedOut, setTimedOut] = useState(() => positions.length < 2);
+  // Sync ref of the timeout flag so the fetch's .then closure can read
+  // the CURRENT value at resolve time (state closures are frozen).
+  const timedOutRef = useRef(false);
   const curve = useMemo(() => smoothCurve(positions), [positions]);
 
   useEffect(() => {
@@ -37,12 +40,19 @@ export function useRoadOrCurve(positions: L.LatLngTuple[]): {
     const url = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
     let cancelled = false;
     const timeout = window.setTimeout(() => {
-      if (!cancelled) setTimedOut(true);
+      if (cancelled) return;
+      timedOutRef.current = true;
+      setTimedOut(true);
     }, 1200);
     fetch(url)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (cancelled || !data) return;
+        // If the fallback timeout already fired, the polyline is already
+        // mid-animation drawing the curve. Swapping to road here would
+        // re-mount the polyline and re-play the draw — the flicker the
+        // user sees. Commit to whatever won the race.
+        if (timedOutRef.current) return;
         const geom = data?.routes?.[0]?.geometry?.coordinates;
         if (Array.isArray(geom) && geom.length > 1) {
           const path: L.LatLngTuple[] = geom.map(

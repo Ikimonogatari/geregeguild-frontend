@@ -111,12 +111,6 @@ export default function LayOfTheGuild() {
                 variants={revealVariants("wipe", DUR.base)}
                 className="ink-divider mx-auto mt-12 max-w-md"
               />
-              <motion.p
-                variants={revealVariants("rise", DUR.base)}
-                className="mt-10 font-accent italic text-muted text-[12px] tracking-[0.5em] uppercase"
-              >
-                — scroll —
-              </motion.p>
             </motion.div>
           </div>
 
@@ -128,30 +122,17 @@ export default function LayOfTheGuild() {
             <StanzaCard key={i} index={i} line={line} />
           ))}
 
-          {/* Final beat — closing ornament */}
+          {/* Final beat — one restrained closing line. */}
           <div className="h-screen flex items-center justify-center px-6">
-            <motion.div
-              variants={staggerParent(STAGGER.base, STAGGER.base)}
-              initial="hidden"
-              whileInView="visible"
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={VIEWPORT}
-              className="flex flex-col items-center gap-8"
+              transition={{ duration: DUR.slow }}
+              className="font-accent italic text-muted text-[12px] tracking-[0.5em] uppercase"
             >
-              <motion.div
-                variants={revealVariants("fade", DUR.slow)}
-                className="flex items-center justify-center gap-5 text-accent font-accent text-[18px] tracking-[0.6em]"
-              >
-                <span>—</span>
-                <span>✦</span>
-                <span>—</span>
-              </motion.div>
-              <motion.p
-                variants={revealVariants("rise", DUR.base)}
-                className="font-accent italic text-muted text-[12px] tracking-[0.5em] uppercase"
-              >
-                Then begins the road.
-              </motion.p>
-            </motion.div>
+              Then begins the road.
+            </motion.p>
           </div>
         </div>
       </div>
@@ -165,9 +146,11 @@ function toRoman(n: number) {
 }
 
 /* ────────────────────────────────────────────────────────────
-   StanzaCard — one stanza rendered as a parchment card. Reveals
-   with a simple whileInView rise+fade — the shared house pattern
-   used everywhere else on the site, so it fires reliably.
+   StanzaCard — one stanza per viewport beat. Stripped of the
+   parchment card chrome (border, backdrop-blur, corner tacks,
+   drop shadow) — just an ordinal, a hair-thin ink divider, and
+   the italic line, floating over the pinned video. Matches the
+   title beat's restraint.
    ──────────────────────────────────────────────────────────── */
 function StanzaCard({ index, line }: { index: number; line: string }) {
   return (
@@ -177,37 +160,21 @@ function StanzaCard({ index, line }: { index: number; line: string }) {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "0px 0px -25% 0px" }}
-        className="relative max-w-2xl w-full mx-auto"
+        className="relative max-w-3xl w-full mx-auto text-center"
       >
-        <motion.div
-          variants={revealVariants("rise", DUR.slow)}
-          className="relative bg-surface/80 backdrop-blur-md border border-accent/25 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] card-firelight px-8 py-14 sm:px-14 sm:py-20 text-center"
+        <motion.p
+          variants={revealVariants("fade", DUR.base)}
+          className="font-accent italic text-accent/70 text-[11px] tracking-[0.6em] uppercase mb-8"
         >
-          {/* Corner tacks — small ember dots at each corner */}
-          <span className="absolute top-2 left-2 h-1.5 w-1.5 rounded-full bg-accent/60" />
-          <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-accent/60" />
-          <span className="absolute bottom-2 left-2 h-1.5 w-1.5 rounded-full bg-accent/60" />
-          <span className="absolute bottom-2 right-2 h-1.5 w-1.5 rounded-full bg-accent/60" />
+          · {toRoman(index + 1)} ·
+        </motion.p>
 
-          <motion.p
-            variants={revealVariants("fade", DUR.base)}
-            className="font-accent italic text-accent/80 text-[11px] tracking-[0.6em] uppercase mb-8"
-          >
-            · {toRoman(index + 1)} ·
-          </motion.p>
-
-          <motion.div
-            variants={revealVariants("wipe", DUR.base)}
-            className="ink-divider mx-auto mb-10 max-w-[8rem]"
-          />
-
-          <motion.p
-            variants={revealVariants("blur", DUR.slow)}
-            className="font-serif italic text-foreground text-[20px] sm:text-[26px] md:text-[30px] leading-[1.6]"
-          >
-            {line}
-          </motion.p>
-        </motion.div>
+        <motion.p
+          variants={revealVariants("blur", DUR.slow)}
+          className="font-serif italic text-foreground text-[22px] sm:text-[28px] md:text-[34px] leading-[1.55]"
+        >
+          {line}
+        </motion.p>
       </motion.div>
     </div>
   );

@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GuideRankBadge from "@/components/GuideRankBadge";
 import JourneyMap from "@/components/JourneyMap";
-import Reveal from "@/components/Reveal";
+import Reveal, { RevealItem } from "@/components/Reveal";
 import JourneyContinueRibbon from "./JourneyContinueRibbon";
 import {
   JOURNEYS,
@@ -175,15 +175,15 @@ export default async function JourneyPage({
         <div className="max-w-6xl mx-auto">
           <div className="ink-divider mb-14" />
           <Reveal stagger={0.12} className="grid md:grid-cols-3 gap-12">
-            <Reveal.Item>
+            <RevealItem>
               <PointColumn sigil="❂" title="Natural" points={journey.naturalPoints} />
-            </Reveal.Item>
-            <Reveal.Item>
+            </RevealItem>
+            <RevealItem>
               <PointColumn sigil="卍" title="Cultural" points={journey.culturalPoints} />
-            </Reveal.Item>
-            <Reveal.Item>
+            </RevealItem>
+            <RevealItem>
               <PointColumn sigil="☽" title="Spiritual" points={journey.spiritualPoints} />
-            </Reveal.Item>
+            </RevealItem>
           </Reveal>
           {typeof journey.templeCount === "number" && (
             <Reveal kind="fade" delay={0.15}>
@@ -244,16 +244,16 @@ export default async function JourneyPage({
         <div className="max-w-6xl mx-auto">
           <Reveal kind="fade">
             <p className="font-accent italic text-accent text-[13px] tracking-[0.3em] uppercase mb-3 text-center">
-              The Machine
+              The Vehicle
             </p>
             <h2 className="font-heading text-3xl sm:text-4xl uppercase tracking-[0.08em] text-center text-foreground">
-              How this road is travelled
+              How you cross this country
             </h2>
             <div className="ink-divider mt-8 mb-14 max-w-md mx-auto" />
           </Reveal>
           <Reveal stagger={0.1} className="grid md:grid-cols-2 gap-6">
             {requiredVehicle && (
-              <Reveal.Item>
+              <RevealItem>
                 <VehiclePanel
                   name={requiredVehicle.name}
                   sigil={requiredVehicle.sigil}
@@ -264,12 +264,12 @@ export default async function JourneyPage({
                   blurb={requiredVehicle.blurb}
                   primary
                 />
-              </Reveal.Item>
+              </RevealItem>
             )}
             {otherVehicles.map(
               (v) =>
                 v && (
-                  <Reveal.Item key={v.id}>
+                  <RevealItem key={v.id}>
                     <VehiclePanel
                       name={v.name}
                       sigil={v.sigil}
@@ -279,7 +279,7 @@ export default async function JourneyPage({
                       priceImpact={v.priceImpact}
                       blurb={v.blurb}
                     />
-                  </Reveal.Item>
+                  </RevealItem>
                 ),
             )}
           </Reveal>
@@ -330,7 +330,7 @@ export default async function JourneyPage({
             <div className="ink-divider mb-14" />
             <Reveal kind="fade">
               <p className="font-accent italic text-accent text-[13px] tracking-[0.3em] uppercase mb-3 text-center">
-                The Person Who Knows the Way
+                The Guide
               </p>
               <h2 className="font-heading text-3xl sm:text-4xl uppercase tracking-[0.08em] text-center text-foreground">
                 Guides who can lead this road
@@ -344,7 +344,7 @@ export default async function JourneyPage({
               {guides.map((g) => {
                 const gm = GUIDE_MEDAL[g.level];
                 return (
-                  <Reveal.Item key={g.slug}>
+                  <RevealItem key={g.slug}>
                     <Link
                       href={`/guides/${g.slug}`}
                       className="flex items-center gap-4 border border-highlight/40 bg-surface/50 px-5 py-4 hover:border-accent/70 hover:bg-surface/70 transition-colors duration-500 group"
@@ -378,7 +378,7 @@ export default async function JourneyPage({
                         <GuideRankBadge level={g.level} size="sm" withName />
                       </div>
                     </Link>
-                  </Reveal.Item>
+                  </RevealItem>
                 );
               })}
             </Reveal>

@@ -117,14 +117,6 @@ const CHAPTERS: Chapter[] = [
    progress so the sparks only appear near the "settle" point.
    ──────────────────────────────────────────────────────────── */
 
-const SPARK_OFFSETS = [
-  { leftPct: 18, delay: 0, dur: 3.4, drift: -14 },
-  { leftPct: 34, delay: 0.6, dur: 3.9, drift: 10 },
-  { leftPct: 52, delay: 1.2, dur: 3.2, drift: -6 },
-  { leftPct: 71, delay: 0.3, dur: 3.7, drift: 14 },
-  { leftPct: 86, delay: 1.6, dur: 3.5, drift: -10 },
-] as const;
-
 /* ─── Right-column panel ──────────────────────────────────── */
 
 type PanelProps = {
@@ -162,96 +154,36 @@ function ChapterPanel({
     onProgress(index, v);
   });
 
-  /* ─── 3D scroll transform on the panel wrapper.
-        Progress 0     → entering from below: pushed away, leaning back
-        Progress 0.5   → settled: flat, in your face
-        Progress 1     → exiting up: pushed away, leaning forward
-        The rotateX curve crosses zero at 0.5, translateZ dips to 0.  */
+  /* ─── Scroll-tied motion — pared back after the lag pass.
+        Killed the expensive stuff: `filter: blur()` (per-frame
+        raster of a full-viewport photo), `filter: drop-shadow`,
+        the animated letterbox, the breathing vignette, and the
+        ember spark keyframes. Keeping only cheap GPU-composited
+        transforms (translateZ, rotateX, scale, translate) and
+        one opacity for the caption parallax's parent. */
   const translateZRaw = useTransform(
     scrollYProgress,
     [0, 0.5, 1],
-    [-140, 0, -140],
+    [-100, 0, -100],
   );
-  const rotateXRaw = useTransform(scrollYProgress, [0, 0.5, 1], [8, 0, -8]);
-  // Warm drop-shadow: strongest at settle, fades to nothing at the edges.
-  const shadowOpacityRaw = useTransform(
-    scrollYProgress,
-    [0, 0.35, 0.65, 1],
-    [0, 1, 1, 0],
-  );
-
-  /* ─── Ken Burns — dramatised. Wider scale range and a slow
-        horizontal pan so it reads as a camera drift across the
-        landscape, not just a zoom. */
-  const scaleRaw = useTransform(scrollYProgress, [0, 1], [1.02, 1.3]);
-  const yRaw = useTransform(scrollYProgress, [0, 1], ["-2%", "2%"]);
-  const xRaw = useTransform(scrollYProgress, [0, 1], ["-3%", "3%"]);
-
-  /* ─── Caption parallax — moves slower than the photo so it
-        reads as a plane sitting in front of the image. */
-  const captionYRaw = useTransform(scrollYProgress, [0, 1], [20, -20]);
-
-  /* ─── Ember sparks visible only near the settle point. */
-  const sparkOpacityRaw = useTransform(
-    scrollYProgress,
-    [0.35, 0.5, 0.7],
-    [0, 1, 0],
-  );
-
-  /* ─── Rack-focus DoF. Blurred on entry and exit, razor sharp
-        at the hero moment. Reads as a photographer pulling focus
-        to this frame. Applied via CSS `filter: blur(...)` on the
-        image wrapper — cheap, GPU-composited, hinted with
-        `will-change: filter`. */
-  const blurPxRaw = useTransform(
-    scrollYProgress,
-    [0, 0.4, 0.6, 1],
-    [6, 0, 0, 6],
-  );
-  const blurFilter = useTransform(blurPxRaw, (v) => `blur(${v.toFixed(2)}px)`);
-
-  /* ─── Cinematic letterbox. Thin black bars slide down from the
-        top and up from the bottom during the hero window
-        (progress 0.4–0.6), pulling the frame to film aspect. */
-  const letterboxHeightRaw = useTransform(
-    scrollYProgress,
-    [0.3, 0.45, 0.55, 0.7],
-    ["0%", "7%", "7%", "0%"],
-  );
-
-  /* ─── Warm breathing vignette. Peaks at panel centre — reads
-        as the shot being lit by lantern light. */
-  const vignetteOpacityRaw = useTransform(
-    scrollYProgress,
-    [0.3, 0.5, 0.7],
-    [0, 0.9, 0],
-  );
-
-  /* ─── Ghosted Roman numeral parallax. Moves slower than the
-        photograph, drifting a touch as it passes through. */
-  const numeralYRaw = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const rotateXRaw = useTransform(scrollYProgress, [0, 0.5, 1], [6, 0, -6]);
+  // Gentler Ken Burns — was [1.02, 1.30], now [1.05, 1.15] and reduced pan.
+  const scaleRaw = useTransform(scrollYProgress, [0, 1], [1.05, 1.15]);
+  const yRaw = useTransform(scrollYProgress, [0, 1], ["-1%", "1%"]);
+  const captionYRaw = useTransform(scrollYProgress, [0, 1], [16, -16]);
+  const numeralYRaw = useTransform(scrollYProgress, [0, 1], [30, -30]);
 
   // Reduced-motion: collapse every scroll transform to a static value.
   const staticZero = 0 as unknown as MotionValue<number>;
-  const staticOne = 1 as unknown as MotionValue<number>;
   const staticScale = 1.05 as unknown as MotionValue<number>;
   const staticY = "0%" as unknown as MotionValue<string>;
   const staticCap = 0 as unknown as MotionValue<number>;
-  const staticBlur = "blur(0px)" as unknown as MotionValue<string>;
-  const staticLetterbox = "0%" as unknown as MotionValue<string>;
-  const staticVignette = 0.35 as unknown as MotionValue<number>;
 
   const translateZ = reduced ? staticZero : translateZRaw;
   const rotateX = reduced ? staticZero : rotateXRaw;
-  const shadowOpacity = reduced ? staticOne : shadowOpacityRaw;
   const scale = reduced ? staticScale : scaleRaw;
   const y = reduced ? staticY : yRaw;
-  const x = reduced ? staticY : xRaw;
   const captionY = reduced ? staticCap : captionYRaw;
-  const sparkOpacity = reduced ? staticZero : sparkOpacityRaw;
-  const blur = reduced ? staticBlur : blurFilter;
-  const letterboxHeight = reduced ? staticLetterbox : letterboxHeightRaw;
-  const vignetteOpacity = reduced ? staticVignette : vignetteOpacityRaw;
   const numeralY = reduced ? staticZero : numeralYRaw;
 
   return (
@@ -260,22 +192,8 @@ function ChapterPanel({
       className="relative h-[100vh] w-full scroll-mt-24 md:[transform-style:preserve-3d]"
       aria-label={`Chapter ${chapter.numeral}: ${chapter.title}`}
     >
-      {/* Warm drop-shadow platter — sits under the panel, fades in at settle.
-          Uses filter: drop-shadow so it hugs the actual painted content. */}
-      <motion.div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none hidden md:block"
-        style={{
-          opacity: shadowOpacity,
-          filter: "drop-shadow(0 30px 60px rgba(0,0,0,0.5))",
-        }}
-      />
-
       {/* 3D-transformed panel wrapper. Perspective is inherited from the
-          right column; here we set the transform + origin. On mobile the
-          transform vars are ignored (no `md:` gating needed — the values
-          just apply, but with no ancestor perspective the visual is a no-op;
-          we still keep the desktop-only styles clean via inline conditionals). */}
+          right column; here we set the transform + origin. */}
       <motion.div
         className="absolute inset-0 overflow-hidden md:will-change-transform"
         style={{
@@ -285,45 +203,24 @@ function ChapterPanel({
           rotateX,
         }}
       >
-        {/* Photograph — full-bleed, warm sepia treatment, Ken Burns.
-            Two nested motion wrappers: the outer carries the rack-focus
-            DoF blur (scroll-tied), the inner carries the Ken Burns
-            transform. Splitting them keeps each transform cheap and
-            lets `will-change: filter` sit on the blur layer only. */}
+        {/* Photograph — full-bleed, warm sepia treatment, gentle Ken Burns.
+            No blur filter anymore (was per-frame full-viewport raster). */}
         <motion.div
-          className="absolute inset-0 [will-change:filter]"
-          style={{ filter: blur }}
+          className="absolute inset-0 will-change-transform"
+          style={{ scale, y }}
         >
-          <motion.div
-            className="absolute inset-0 will-change-transform"
-            style={{ scale, x, y }}
-          >
-            <Image
-              src={chapter.image}
-              alt={chapter.alt}
-              fill
-              priority={index === 0}
-              sizes="(min-width: 768px) 60vw, 100vw"
-              className="object-cover grayscale-[15%] sepia-[28%] brightness-[0.82]"
-            />
-          </motion.div>
+          <Image
+            src={chapter.image}
+            alt={chapter.alt}
+            fill
+            priority={index === 0}
+            sizes="(min-width: 768px) 60vw, 100vw"
+            className="object-cover grayscale-[15%] sepia-[28%] brightness-[0.82]"
+          />
         </motion.div>
 
-        {/* Warm breathing vignette — pulses in around the panel's
-            hero centre. Pure CSS radial gradient; opacity is the
-            only scroll-tied prop. Reads as lantern light closing
-            in on the frame. */}
-        <motion.div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            opacity: vignetteOpacity,
-            background:
-              "radial-gradient(70% 60% at 50% 50%, transparent 40%, rgba(28,21,16,0.55) 100%)",
-          }}
-        />
-
-        {/* Warm scrims: top a whisper, bottom for caption legibility. */}
+        {/* Warm scrims: top a whisper, bottom for caption legibility.
+            Static — no scroll-tied opacity. */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
@@ -343,25 +240,8 @@ function ChapterPanel({
           }}
         />
 
-        {/* Cinematic letterbox bars — thin black slabs that slide in
-            from top and bottom during the hero window. Height is
-            scroll-tied via useTransform. Sits above the photo,
-            beneath the caption. Pure CSS, cheap. */}
-        <motion.div
-          aria-hidden
-          className="absolute inset-x-0 top-0 z-[5] bg-black pointer-events-none"
-          style={{ height: letterboxHeight }}
-        />
-        <motion.div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 z-[5] bg-black pointer-events-none"
-          style={{ height: letterboxHeight }}
-        />
-
-        {/* Cut-between-shots — a soft dark gradient bleeding from
-            the top and bottom edges. Overlaps with neighbouring
-            panels' bleed to hint a natural fade-to-black between
-            shots. Static, no scroll binding needed. */}
+        {/* Cut-between-shots — soft dark gradient bleeding from edges.
+            Static, no scroll binding. */}
         <div
           aria-hidden
           className="absolute inset-x-0 top-0 h-[10vh] z-[6] pointer-events-none"
@@ -379,10 +259,7 @@ function ChapterPanel({
           }}
         />
 
-        {/* Ghosted Roman numeral — massive Cinzel watermark in the
-            bottom-right corner, sitting behind the caption. Very
-            faint (~8% foreground), scroll-parallaxed slower than
-            everything else. Reads as a Kubrick chapter card. */}
+        {/* Ghosted Roman numeral — Kubrick chapter watermark */}
         <motion.div
           aria-hidden
           className="absolute right-4 md:right-10 bottom-0 z-[7] pointer-events-none select-none"
@@ -395,30 +272,6 @@ function ChapterPanel({
             {chapter.numeral}
           </span>
         </motion.div>
-
-        {/* Ember sparks — cheap CSS-keyframed spans, visible only near settle */}
-        {!reduced && (
-          <motion.div
-            aria-hidden
-            className="absolute inset-x-0 bottom-0 h-40 pointer-events-none hidden md:block overflow-hidden"
-            style={{ opacity: sparkOpacity }}
-          >
-            {SPARK_OFFSETS.map((spark, i) => (
-              <span
-                key={i}
-                className="ember-spark"
-                style={
-                  {
-                    left: `${spark.leftPct}%`,
-                    animationDelay: `${spark.delay}s`,
-                    animationDuration: `${spark.dur}s`,
-                    ["--spark-drift" as string]: `${spark.drift}px`,
-                  } as React.CSSProperties
-                }
-              />
-            ))}
-          </motion.div>
-        )}
 
         {/* Caption block — parallaxed on its own translateY plane */}
         <motion.div
@@ -446,53 +299,6 @@ function ChapterPanel({
         </motion.div>
       </motion.div>
 
-      {/* Inline styles for the ember spark keyframes.
-          Kept local so this component stays self-contained; the animation
-          is cheap (opacity + transform), only 5 elements per panel. */}
-      <style jsx>{`
-        .ember-spark {
-          position: absolute;
-          bottom: 0;
-          width: 3px;
-          height: 3px;
-          border-radius: 9999px;
-          background: radial-gradient(
-            circle at 50% 50%,
-            rgba(255, 208, 130, 1) 0%,
-            rgba(201, 146, 42, 0.9) 45%,
-            rgba(201, 146, 42, 0) 100%
-          );
-          box-shadow: 0 0 8px rgba(201, 146, 42, 0.7);
-          opacity: 0;
-          animation-name: ember-spark-rise;
-          animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-          animation-iteration-count: infinite;
-          will-change: transform, opacity;
-        }
-        @keyframes ember-spark-rise {
-          0% {
-            transform: translate3d(0, 0, 0) scale(0.7);
-            opacity: 0;
-          }
-          15% {
-            opacity: 1;
-          }
-          80% {
-            opacity: 0.5;
-          }
-          100% {
-            transform: translate3d(var(--spark-drift, 0px), -140px, 0)
-              scale(1);
-            opacity: 0;
-          }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .ember-spark {
-            animation: none;
-            opacity: 0;
-          }
-        }
-      `}</style>
     </div>
   );
 }

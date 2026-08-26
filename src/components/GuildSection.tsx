@@ -13,23 +13,23 @@ import {
 const tenets = [
   {
     sigil: "I",
-    title: "The Road",
-    desc: "First choose the Mongolia you want to meet — a journey, a region, an intent. The charter begins from the road, never from the guide.",
+    title: "Choose the road",
+    desc: "First pick where you want to go — a journey, a region, an intent. The charter begins from the road, not the guide.",
   },
   {
     sigil: "II",
-    title: "The Machine",
-    desc: "Then the vehicle matched to the terrain. Horse, Cruiser, furgon or expedition — the right way to cross the country you chose.",
+    title: "Pick the vehicle",
+    desc: "Then the vehicle matched to the terrain — horse, Land Cruiser, furgon, or expedition rig. The right way to cross what you chose.",
   },
   {
     sigil: "III",
-    title: "The Companion",
-    desc: "Then the host and the guide, matched to the road. A guide whose rank meets the country — for a guide is not the product, the whole journey is.",
+    title: "Match a guide",
+    desc: "Then a guide with the right experience for the country. A guide is not the product — the whole journey is.",
   },
   {
     sigil: "IV",
-    title: "The Charter",
-    desc: "We write back with a charted map and a written charter. Every reply comes from a guide, not a sales desk.",
+    title: "Get your charter",
+    desc: "We reply with a routed map and a written charter. Every reply comes from a guide, not a sales desk.",
   },
 ];
 
@@ -65,13 +65,13 @@ export default function GuildSection() {
               variants={revealVariants("rise", DUR.base)}
               className="font-accent italic text-accent text-[14px] tracking-[0.35em] uppercase mb-5"
             >
-              The Charter of the Guild
+              How it works
             </motion.p>
             <motion.h2
               variants={revealVariants("blur", DUR.slow)}
               className="font-heading text-4xl md:text-6xl uppercase tracking-[0.08em] text-foreground ember-text-glow leading-[1.05]"
             >
-              How a charter <span className="text-accent">is made</span>
+              Four steps <span className="text-accent">to a charter</span>
             </motion.h2>
             <motion.div
               variants={revealVariants("wipe", DUR.base)}
@@ -82,8 +82,8 @@ export default function GuildSection() {
             variants={revealVariants("rise", DUR.base)}
             className="text-foreground/80 text-[17px] font-serif italic leading-[1.85] lg:pt-20"
           >
-            Four steps. No middlemen. The same four steps as a hundred years
-            ago, with the addition that you can begin them from a screen.
+            No middlemen, no sales desk. Just four decisions — road, vehicle,
+            guide, and the written charter that follows.
           </motion.p>
         </motion.div>
 

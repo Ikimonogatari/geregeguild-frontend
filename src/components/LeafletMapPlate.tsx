@@ -275,20 +275,28 @@ function FitOnRouteChange({ bounds }: { bounds: L.LatLngBoundsExpression }) {
   return null;
 }
 
-/* ─── Inked polyline — DOM-driven stroke-dash draw, no React state. ─── */
+/* ─── Inked polyline — DOM-driven stroke-dash draw, no React state.
+   One-shot animation per mount. Guarded against React strict-mode
+   double-invocation and against re-fires from parent re-renders (which
+   was the flicker: even when `positions` is data-stable, React can
+   hand a new array reference on re-render and this effect would replay
+   the animation). Deps intentionally empty. ─── */
 function DrawAnimatedPolyline({ positions }: { positions: L.LatLngTuple[] }) {
   const ref = useRef<L.Polyline | null>(null);
+  const playedRef = useRef(false);
 
   useEffect(() => {
+    if (playedRef.current) return;
     const poly = ref.current;
     if (!poly) return;
     const el = poly.getElement() as SVGPathElement | null;
     if (!el) return;
+    playedRef.current = true;
     const total = el.getTotalLength?.() ?? 1000;
     el.style.strokeDasharray = `${total}`;
     el.style.strokeDashoffset = `${total}`;
     const t0 = performance.now();
-    const dur = 1600;
+    const dur = 1000;
     let raf = 0;
     const tick = (now: number) => {
       const t = Math.min(1, (now - t0) / dur);
@@ -298,7 +306,8 @@ function DrawAnimatedPolyline({ positions }: { positions: L.LatLngTuple[] }) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [positions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Polyline

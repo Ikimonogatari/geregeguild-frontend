@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -13,8 +14,30 @@ import {
 } from "@/lib/journeys";
 import { fetchJourneys } from "@/lib/api";
 
+// Wrap the client body so useSearchParams sits under Suspense — a Next.js
+// requirement for CSR bailouts during build.
 export default function JourneysPage() {
-  const [category, setCategory] = useState<JourneyCategory | "All">("All");
+  return (
+    <Suspense fallback={null}>
+      <JourneysPageInner />
+    </Suspense>
+  );
+}
+
+function JourneysPageInner() {
+  const searchParams = useSearchParams();
+  // Seed the filter from ?category=<name> if it matches a real category.
+  const initialCategory = useMemo<JourneyCategory | "All">(() => {
+    const raw = searchParams.get("category");
+    if (!raw) return "All";
+    return (JOURNEY_CATEGORIES as string[]).includes(raw)
+      ? (raw as JourneyCategory)
+      : "All";
+  }, [searchParams]);
+
+  const [category, setCategory] = useState<JourneyCategory | "All">(
+    initialCategory,
+  );
   const [journeys, setJourneys] = useState<Journey[]>([]);
 
   useEffect(() => {

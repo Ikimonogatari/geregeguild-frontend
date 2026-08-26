@@ -60,8 +60,12 @@ type ItemProps = {
   children: React.ReactNode;
 } & Omit<HTMLMotionProps<"div">, "variants">;
 
-/** A child of a staggered <Reveal>. Inherits the parent's sequence timing. */
-function Item({ as = "div", kind = "rise", duration = DUR.base, className, children, ...rest }: ItemProps) {
+/** A child of a staggered <Reveal>. Inherits the parent's sequence timing.
+    Exported as a named export (not attached as `Reveal.Item`) because
+    runtime property attachments on a Client Component don't cross the
+    Server → Client boundary in Next 16 — the Server sees only a client
+    reference marker, so `Reveal.Item` reads as undefined at render. */
+export function RevealItem({ as = "div", kind = "rise", duration = DUR.base, className, children, ...rest }: ItemProps) {
   const MotionTag = motion[as] as typeof motion.div;
   return (
     <MotionTag className={className} variants={revealVariants(kind, duration)} {...rest}>
@@ -69,5 +73,3 @@ function Item({ as = "div", kind = "rise", duration = DUR.base, className, child
     </MotionTag>
   );
 }
-
-Reveal.Item = Item;
