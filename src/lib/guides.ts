@@ -81,7 +81,7 @@ export const GUIDES: Guide[] = [
     specialization: "Adventurous",
     homeRegion: "Khentii",
     yearsRiding: 30,
-    portrait: "/1.jpg",
+    portrait: "/images/placeholder.svg",
     tagline:
       "He walks this country like a man reading a book he himself wrote — quietly, slowly, and never twice in the same direction.",
     lore: [
@@ -147,7 +147,7 @@ export const GUIDES: Guide[] = [
     specialization: "Gobi",
     homeRegion: "Ömnögovi",
     yearsRiding: 16,
-    portrait: "/2.jpg",
+    portrait: "/images/placeholder.svg",
     tagline:
       "She knows where the dunes hum at dusk, and which wells have not yet gone bitter.",
     lore: [
@@ -197,7 +197,7 @@ export const GUIDES: Guide[] = [
     specialization: "Lake",
     homeRegion: "Khövsgöl",
     yearsRiding: 19,
-    portrait: "/3.jpg",
+    portrait: "/images/placeholder.svg",
     tagline:
       "Spends winter on the ice, summer on the water. Sleeps best beneath pine.",
     lore: [
@@ -255,7 +255,7 @@ export const GUIDES: Guide[] = [
     specialization: "Extreme",
     homeRegion: "Bayan-Ölgii",
     yearsRiding: 14,
-    portrait: "/4.jpg",
+    portrait: "/images/placeholder.svg",
     tagline:
       "The Altai eagle-hunters call him cousin. The winter calls him by name.",
     lore: [
@@ -305,7 +305,7 @@ export const GUIDES: Guide[] = [
     specialization: "Urban",
     homeRegion: "Ulaanbaatar",
     yearsRiding: 6,
-    portrait: "/5.jpg",
+    portrait: "/images/placeholder.svg",
     tagline:
       "Knows every monastery, every back-alley dumpling stall, every poet still drinking after midnight.",
     lore: [
@@ -355,7 +355,7 @@ export const GUIDES: Guide[] = [
     specialization: "Adventurous",
     homeRegion: "Arkhangai",
     yearsRiding: 2,
-    portrait: "/6.jpg",
+    portrait: "/images/placeholder.svg",
     tagline:
       "Young, eager, fluent in three languages. Will ride further than asked, and ask no payment for the extra hour.",
     lore: [

@@ -143,6 +143,12 @@ export default function CharterTrackPage({
   const isCancelled = data.status === "cancelled";
   const currentIndex = isCancelled ? -1 : STAGE_ORDER.indexOf(data.status as Exclude<Status, "cancelled">);
   const reference = data.id.slice(0, 8).toUpperCase();
+  const payment = data.payment;
+  const nextStep = payment
+    ? payment.depositReceived
+      ? "Your deposit has reached the Guild. The written charter and travel details will follow by email."
+      : "Send the deposit through Remitly using the details above. Once it reaches the Guild, this page will mark it received and the written charter will follow by email."
+    : NEXT_STEP_BLURB[data.status];
 
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
@@ -271,6 +277,69 @@ export default function CharterTrackPage({
         </motion.div>
       </section>
 
+      {/* ─── Deposit via Remitly — confirmed charters only ─── */}
+      {payment && (
+        <section className="px-6 pb-12 max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "0px 0px -60px 0px" }}
+            transition={{ duration: DUR.base, ease: EASE }}
+            className="relative border border-accent/40 bg-surface/50 p-7 sm:p-9 ember-glow"
+          >
+            <CornerTacks />
+
+            <p className="font-accent italic text-accent text-[12px] tracking-[0.3em] uppercase mb-3">
+              {payment.depositReceived ? "Deposit received" : "Settle the deposit"}
+            </p>
+            {payment.depositReceived ? (
+              <p className="text-foreground/85 text-[16px] font-serif italic leading-relaxed">
+                The Guild holds your deposit. Nothing more is owed until the written charter arrives.
+              </p>
+            ) : (
+              <>
+                <p className="mb-6 text-foreground/85 text-[16px] font-serif italic leading-relaxed">
+                  Send the deposit with Remitly to the recipient below. Choose Mongolia as the
+                  destination and put your reference seal in the transfer note.
+                </p>
+                <dl className="grid sm:grid-cols-2 gap-y-6 gap-x-8">
+                  <LedgerRow
+                    label="Deposit"
+                    value={new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: payment.currency,
+                      maximumFractionDigits: 0,
+                    }).format(payment.depositAmount)}
+                    accent
+                  />
+                  <LedgerRow label="Reference seal" value={payment.reference} sub="add to the transfer note" />
+                  <LedgerRow label="Recipient" value={payment.recipientName} />
+                  {payment.payoutMethod && (
+                    <LedgerRow label="Payout method" value={payment.payoutMethod} />
+                  )}
+                  {payment.account && (
+                    <LedgerRow label="Account / wallet" value={payment.account} />
+                  )}
+                </dl>
+                {payment.instructions && (
+                  <p className="mt-6 whitespace-pre-wrap border-l-2 border-accent/50 pl-5 py-1 text-[15px] font-serif italic text-foreground/85 leading-relaxed">
+                    {payment.instructions}
+                  </p>
+                )}
+                <a
+                  href="https://www.remitly.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-8 inline-block px-8 py-3 border border-accent bg-accent/10 hover:bg-accent hover:text-background font-accent text-[11px] tracking-[0.3em] uppercase transition-all duration-500"
+                >
+                  Open Remitly
+                </a>
+              </>
+            )}
+          </motion.div>
+        </section>
+      )}
+
       {/* ─── What happens next ─── */}
       <section className="px-6 pb-14 max-w-3xl mx-auto">
         <motion.div
@@ -284,7 +353,7 @@ export default function CharterTrackPage({
             What happens next
           </p>
           <p className="text-foreground/85 text-[16px] font-serif italic leading-relaxed">
-            {NEXT_STEP_BLURB[data.status]}
+            {nextStep}
           </p>
         </motion.div>
       </section>

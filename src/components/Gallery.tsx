@@ -20,7 +20,14 @@ import {
   staggerParent,
 } from "@/lib/motion";
 
-const images = ["/4.jpg", "/2.jpg", "/3.jpg", "/7.jpg", "/8.jpg", "/9.jpg"];
+const images = [
+  { src: "/images/journeys/gobi-dune-sunset.jpg", alt: "Sunset over the Gobi dunes" },
+  { src: "/images/journeys/taiga-reindeer.jpg", alt: "A reindeer grazing in the northern taiga" },
+  { src: "/images/journeys/bayanzag-red-cliffs.jpg", alt: "Red sandstone cliffs under a clear sky" },
+  { src: "/images/journeys/granite-rocks-tall.jpg", alt: "Granite outcrop rising over steppe grass" },
+  { src: "/images/journeys/gobi-dunes-saxaul.jpg", alt: "Rippled dunes scattered with saxaul shrubs" },
+  { src: "/images/journeys/steppe-stones.jpg", alt: "Stones on an open green valley under a wide sky" },
+];
 
 export default function Gallery() {
   const [api, setApi] = useState<CarouselApi>();
@@ -89,7 +96,7 @@ export default function Gallery() {
               className="w-full"
             >
               <CarouselContent className="ml-0">
-                {images.map((src, idx) => {
+                {images.map((image, idx) => {
                   const isActive = current === idx;
                   return (
                     <CarouselItem
@@ -104,8 +111,8 @@ export default function Gallery() {
                           )}
                         >
                           <img
-                            src={src}
-                            alt={`Plateau view ${idx + 1}`}
+                            src={image.src}
+                            alt={image.alt}
                             className="w-full h-full object-cover grayscale-[15%] sepia-[25%] brightness-[0.92]"
                           />
                         </div>

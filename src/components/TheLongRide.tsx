@@ -73,8 +73,8 @@ const CHAPTERS: Chapter[] = [
     pullQuote:
       "The land begins where the road ends. In the pale morning, only horses move.",
     body: "You wake before the wind. Fold the felt back, tie your loovuuz, and step out to a horizon that admits no walls. This is the country as the Guild first meets you.",
-    image: "/1.jpg",
-    alt: "Dawn on the Khentii steppe",
+    image: "/images/journeys/steppe-road-storm.jpg",
+    alt: "A dirt track running through the green Khentii steppe under heavy clouds",
   },
   {
     numeral: "II",
@@ -84,8 +84,8 @@ const CHAPTERS: Chapter[] = [
     pullQuote:
       "By high sun, the world becomes stone and sky. The camels know the way.",
     body: "The dunes cannot be argued with. You learn a rhythm — dawn ride, midday shelter, evening ride — and the country hands you its silence in return.",
-    image: "/4.jpg",
-    alt: "Camel crossing in the Gobi",
+    image: "/images/journeys/gobi-dunes-horses.jpg",
+    alt: "A herd of horses crossing the Gobi dunes",
   },
   {
     numeral: "III",
@@ -94,8 +94,8 @@ const CHAPTERS: Chapter[] = [
     meta: "WEST MONGOLIA · 4×4 · 8 DAYS",
     pullQuote: "Ridges, rivers, and the long silence of the west.",
     body: "The overland climb turns west. Every ford is a decision, every ridge a page. By the third day the world stops looking like a map and starts looking like memory.",
-    image: "/7.jpg",
-    alt: "Overland into the Altai",
+    image: "/images/journeys/canyon-dry-river.jpg",
+    alt: "A dry riverbed winding through red canyon walls in the west",
   },
   {
     numeral: "IV",
@@ -105,8 +105,8 @@ const CHAPTERS: Chapter[] = [
     pullQuote:
       "Dusk, and a monastery on the ridge. The road ends where the flame begins.",
     body: "You leave the vehicle. The last hour is on foot, past the ovoo, up the switchbacks. The prayer flags catch the last of the sun. Then the doors open, and the country holds you.",
-    image: "/9.jpg",
-    alt: "Arrival at Amarbayasgalant monastery at dusk",
+    image: "/7.jpg",
+    alt: "Arrival at a monastery under prayer flags",
   },
 ];
 

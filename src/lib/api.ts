@@ -108,6 +108,18 @@ export type CharterTrack = {
   estimatedTotal: number;
   currency: string;
   adminNotes: string;
+  /** Remitly deposit instructions — present only on confirmed charters. */
+  payment?: {
+    method: "remitly";
+    recipientName: string;
+    payoutMethod: string;
+    account: string;
+    instructions: string;
+    depositAmount: number;
+    currency: string;
+    reference: string;
+    depositReceived: boolean;
+  } | null;
 };
 
 export async function trackCharter(id: string): Promise<CharterTrack | null> {
